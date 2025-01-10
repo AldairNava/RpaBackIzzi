@@ -1,0 +1,6 @@
+﻿# Excluir la carpeta .vs
+.vs/
+
+# Excluir bin y obj (carpetas de compilación de C#)
+bin/
+obj/

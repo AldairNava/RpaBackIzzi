@@ -1,0 +1,81 @@
+using Microsoft.AspNetCore.Mvc;
+using Sustainsys.Saml2.AspNetCore2;
+using System.Security.Claims;
+using WebApplication1.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+
+namespace WebApplication1.Controllers
+{
+    [Route("Saml")]
+    [ApiController]
+    public class SamlController : ControllerBase
+    {
+        private readonly ILogger<SamlController> _logger;
+        private readonly ApplicationDbContext _context;
+
+        public SamlController(ILogger<SamlController> logger, ApplicationDbContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
+
+        [HttpGet("Login")]
+        public IActionResult Login()
+        {
+            return Challenge(new AuthenticationProperties { RedirectUri = "/Saml/Register" }, Saml2Defaults.Scheme);
+        }
+
+        [HttpGet("Register")]
+        [Authorize]
+        public IActionResult Register()
+        {
+            try
+            {
+                var principal = HttpContext.User as ClaimsPrincipal;
+                if (principal != null)
+                {
+                    var samlIdentifier = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+                    var name = principal.FindFirst(ClaimTypes.Name)?.Value;
+                    var role = principal.FindFirst(ClaimTypes.Role)?.Value;
+
+                    // Guardar los datos en la base de datos
+                    var user = _context.Users.SingleOrDefault(u => u.SamlIdentifier == samlIdentifier);
+                    if (user == null)
+                    {
+                        user = new Users
+                        {
+                            Name = name,
+                            Email = email,
+                            Role = role,
+                            SamlIdentifier = samlIdentifier
+                        };
+                        _context.Users.Add(user);
+                    }
+                    else
+                    {
+                        // Actualizar datos del usuario si es necesario
+                        user.Name = name;
+                        user.Email = email;
+                        user.Role = role;
+                    }
+                    _context.SaveChanges();
+
+                    _logger.LogInformation("Usuario registrado o actualizado: {Email}", email);
+                }
+
+                // Redirigir al frontend
+                return Redirect("https://tu-frontend-url/dashboard");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al registrar el usuario");
+                return StatusCode(500, $"Error al registrar el usuario: {ex.Message}");
+            }
+        }
+
+    }
+}

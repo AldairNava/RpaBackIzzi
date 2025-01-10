@@ -1,0 +1,71 @@
+[Route("Saml2")]
+    [ApiController]
+    public class Saml2Controller : ControllerBase
+    {
+        private readonly ILogger<Saml2Controller> _logger;
+
+        public Saml2Controller(ILogger<Saml2Controller> logger)
+        {
+            _logger = logger;
+        }
+
+        [HttpPost("Acs")]
+        public async Task<IActionResult> Acs()
+        {
+            _logger.LogInformation("Método de solicitud: {Method}", Request.Method);
+
+            try
+            {
+                var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                if (!result.Succeeded)
+                {
+                    _logger.LogError("Error en la autenticación SAML.");
+                    return BadRequest("Error en la autenticación.");
+                }
+
+                // Procesar y extraer atributos del assertion SAML
+                var principal = result.Principal;
+                foreach (var claim in principal.Claims)
+                {
+                    _logger.LogInformation($"Tipo de Claim: {claim.Type}, Valor: {claim.Value}");
+                    // Aquí puedes procesar cada claim según sea necesario
+                }
+
+                var token = GenerateJwtToken(result.Principal);
+                var relayState = Request.Form["RelayState"].ToString();
+
+                var redirectUrl = $"https://frontrpaizzi.azurewebsites.net/mariana?token={token}&RelayState={relayState}";
+                _logger.LogInformation("Redirigiendo a {RedirectUrl}", redirectUrl);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, result.Principal);
+
+                return Redirect(redirectUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error procesando la respuesta SAML.");
+                return StatusCode(500, "Error procesando la respuesta SAML.");
+            }
+        }
+
+        private string GenerateJwtToken(ClaimsPrincipal principal)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Nada329622"));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, principal.Identity.Name),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+            // Agrega las reclamaciones (claims) del usuario autenticado
+            claims.AddRange(principal.Claims);
+            var token = new JwtSecurityToken(
+                issuer: "https://rpabackizzi.azurewebsites.net",
+                audience: "https://frontrpaizzi.azurewebsites.net",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: credentials);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+}
