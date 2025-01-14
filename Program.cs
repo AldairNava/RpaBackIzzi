@@ -14,7 +14,6 @@ using System.Security.Cryptography.X509Certificates;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 
@@ -22,49 +21,33 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Configuración de SAML2
 builder.Services.AddAuthentication(opt =>
 {
-    // Default scheme that maintains session is cookies.
     opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-
-    // If there's a challenge to sign in, use the Saml2 scheme.
     opt.DefaultChallengeScheme = Saml2Defaults.Scheme;
 })
 .AddCookie("cookie", opt =>
 {
-    // Cuando se desafíe, redirigir a esta ruta. Esto captura
-    // cualquier página intentada como un parámetro de consulta returnUrl.
     opt.LoginPath = "/Login";
 })
 .AddCookie("external")
 .AddSaml2(Saml2Defaults.Scheme, opt =>
 {
-    // When Saml2 finishes, persist the resulting identity
-    // in the external cookie.
     opt.SignInScheme = "external";
-
-    // Set up our EntityId, this is our application.
     opt.SPOptions.EntityId = new EntityId("https://rpabackizzi.azurewebsites.net");
-
-    // Add an identity provider.
     opt.IdentityProviders.Add(new IdentityProvider(
-        // The identity provider's entity id.
         new EntityId("https://sts.windows.net/3ad84793-7b5f-4519-84ce-96790471f26a/"),
         opt.SPOptions)
     {
-        // Load configuration parameters from metadata
         LoadMetadata = true,
         MetadataLocation = "https://compartidacyber.blob.core.windows.net/mariana/portalIZZI.xml",
-
-        // No need to add ServiceCertificates if only validating incoming messages
     });
 });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy(name: "MyAllowSpecificOrigins", builder => {
@@ -86,8 +69,11 @@ builder.Services.AddQuartzHostedService(opt =>
 var wsPptions = new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(10) };
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -101,9 +87,12 @@ app.UseAuthorization();
 
 app.UseWebSockets(wsPptions);
 
-app.MapControllers();
-app.MapRazorPages();
-
-app.MapDefaultControllerRoute();  // Asegúrate de que esto esté presente para el enrutamiento por defecto
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapRazorPages();
+    endpoints.MapFallbackToFile("/index.html");
+});
 
 app.Run();
+

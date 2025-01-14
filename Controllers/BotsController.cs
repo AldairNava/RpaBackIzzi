@@ -1354,6 +1354,11 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
             try
             {
                 conn.Open();
+
+                string truncateSql = "TRUNCATE TABLE SeriesMasivo";
+                SqlCommand truncateCmd = new SqlCommand(truncateSql, conn);
+                truncateCmd.ExecuteNonQuery();
+
                 foreach (var data in Info)
                 {
                     string sql = "INSERT INTO SeriesMasivo (puntoInventario, serie) VALUES (@puntoInventario, @serie)";
@@ -1371,6 +1376,7 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                 return BadRequest(ex.Message);
             }
         }
+
 
         [HttpGet]
         [Route("ObtenerSeriesMasivo")]
