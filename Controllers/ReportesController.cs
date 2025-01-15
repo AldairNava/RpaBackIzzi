@@ -1370,7 +1370,7 @@ namespace WebApplication1.Controllers
             sl.SetColumnWidth(5, 20);
             sl.SetColumnWidth(6, 30);
             sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Sucursales");
-            sl.SetCellValue("B9", "Id");
+            sl.SetCellValue("B9", "Cuenta");
             sl.SetCellValue("C9", "Caso de Negocio");
             sl.SetCellValue("D9", "Status");
             sl.SetCellValue("E9", "Fecha Cargado");
@@ -1388,7 +1388,7 @@ namespace WebApplication1.Controllers
             sl.SetPageSettings(sp);
 
             int celda = 9;
-            string sql = $"select id, casoNegocio, status, FechaCarga, FechaCompletado from AjustesCambioServicios where convert(date, FechaCarga) between '{fecha1}' and '{fecha2}' and status IN ('Procesando', '', 'Error excepcio,', 'Cancelado - Error Excepcion Validacion', 'Error Excepcion Cierre CN y Actividad', 'Error Envio Ajuste', 'Cancelado - Error Tipo Cuenta ', 'Error Ajuste Invalido', 'Error Envio Ajuste', 'Error excepcio', 'Procesando', 'Error Ingresar Ajuste', 'Cancelado - Error Excepcion', 'Error excepcio', 'Error excepcio,')";
+            string sql = $"select cuenta, casoNegocio, status, FechaCarga, FechaCompletado from AjustesCambioServicios where convert(date, FechaCarga) between '{fecha1}' and '{fecha2}' and status NOT IN ('Cerrado')";
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
             conn.Open();
@@ -1400,7 +1400,7 @@ namespace WebApplication1.Controllers
             while (reader.Read())
             {
                 celda++;
-                sl.SetCellValue("B" + celda, reader["id"].ToString());
+                sl.SetCellValue("B" + celda, reader["cuenta"].ToString());
                 sl.SetCellValue("C" + celda, reader["casoNegocio"].ToString());
                 sl.SetCellValue("D" + celda, reader["status"].ToString());
                 sl.SetCellValue("E" + celda, reader["FechaCarga"].ToString());
