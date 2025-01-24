@@ -35,45 +35,20 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var query = from proceso in _context.cat_procesosLimpieza
-                            join bot in _context.BotsProcessLimpieza on proceso.Id equals bot.ProcesoBotId into botGroup
-                            from bot in botGroup.DefaultIfEmpty()
-                            select new
-                            {
-                                BotId = bot == null ? 0 : bot.Id,
-                                BotComentarios = bot == null ? "N/A" : bot.comentarios,
-                                BotHostName = bot == null ? "N/A" : bot.hostName,
-                                BotFechaActualizacion = bot == null ? DateTime.MinValue : bot.fechaActualizacion,
-                                BotIp = bot == null ? "N/A" : bot.ip,
-                                BotEstado = bot == null ? "N/A" : bot.estado,
-                                ProcesoId = proceso.Id,
-                                ProcesoName = proceso.Name_process,
-                                ProcesoUser = proceso.usuario,
-                                ProcesoPassword = proceso.password,
-                                ProcesoFechaActualizacion = proceso.update_At,
-                                ProcesoStatus = proceso.Status,
-                                Procesonombreuser = proceso.Name_usuario
-                            };
-                var datos = query.ToList();
-                if (datos.Count() > 0)
+                var bots = await _context.BotsProcessLimpieza.ToListAsync();
+                if (bots.Count > 0)
                 {
-                    return Ok(datos);
-
+                    return Ok(bots);
                 }
                 else
                 {
-                    var d = new List<string>()
-                    {
-                        "SIN INFO"
-                    };
-                    return Ok(d);
+                    return Ok(new List<string> { "SIN INFO" });
                 }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
         [HttpGet]
@@ -193,43 +168,20 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        [Route("getBotByIdLimpieza/{id}")]
-        public async Task<ActionResult<BotsModel>> getBotByIdLimpieza(int id)
+        [Route("getProcesos")]
+        public async Task<ActionResult<IEnumerable<catalogoProcesosBotsModel>>> getProcesos()
         {
             try
             {
-                var query = from bot in _context.BotsProcessLimpieza
-                            join proceso in _context.cat_procesosLimpieza on bot.ProcesoBotId equals proceso.Id
-                            where bot.Id == id
-                            select new
-                            {
-                                BotId = bot.Id,
-                                BotComentarios = bot.comentarios,
-                                BotHostName = bot.hostName,
-                                BotFechaActualizacion = bot.fechaActualizacion,
-                                BotIp = bot.ip,
-                                BotProcesoId = bot.ProcesoBotId,
-                                ProcesoId = proceso.Id,
-                                ProcesoName = proceso.Name_process,
-                                ProcesoUser = proceso.usuario,
-                                ProcesoPassword = proceso.password,
-                                ProcesoFechaActualizacion = proceso.update_At,
-                                ProcesoStatus = proceso.Status
-                            };
+                var procesos = await _context.cat_procesosLimpieza.ToListAsync();
 
-                var bot1 = await query.FirstOrDefaultAsync();
-
-                if (bot1 != null)
+                if (procesos.Count > 0)
                 {
-                    return Ok(bot1);
+                    return Ok(procesos);
                 }
                 else
                 {
-                    var d = new List<string>()
-                    {
-                        "SIN INFO"
-                    };
-                    return Ok(d);
+                    return Ok(new List<string> { "SIN INFO" });
                 }
             }
             catch (Exception ex)
@@ -237,6 +189,33 @@ namespace WebApplication1.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpGet]
+        [Route("getProcesoById/{id}")]
+        public async Task<ActionResult<catalogoProcesosBotsLimpiezaModel>> getProcesoById(int id)
+        {
+            try
+            {
+                var proceso = await _context.cat_procesosLimpieza
+                                             .Where(p => p.Id == id)
+                                             .FirstOrDefaultAsync();
+
+                if (proceso != null)
+                {
+                    return Ok(proceso);
+                }
+                else
+                {
+                    return NotFound("Proceso no encontrado");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         [HttpGet]
         [Route("getBotById/{id}")]
@@ -494,45 +473,42 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
 
         [Route("ActualizarBotLimpieza")]
         [HttpPut]
-        public dynamic ActualizarBotLimpieza(int id, [FromBody] BotsModellimpieza Cuenta)
+        public dynamic ActualizarBotLimpieza(int id, [FromBody] catalogoProcesosBotsLimpiezaModel cuenta)
         {
             try
             {
-                if (id == Cuenta.Id)
+                if (id == cuenta.Id)
                 {
-                    var bot = _context.BotsProcessLimpieza.FirstOrDefault(b => b.Id == id);
-                    var proceso = _context.cat_procesosLimpieza.FirstOrDefault(p => p.Id == Cuenta.ProcesoBotId);
+                    var proceso = _context.cat_procesosLimpieza.FirstOrDefault(p => p.Id == id);
 
-                    if (bot != null && proceso != null)
+                    if (proceso != null)
                     {
-                        bot.fechaActualizacion = DateTime.Now;
-                        bot.comentarios = Cuenta.comentarios;
-                        bot.hostName = Cuenta.hostName;
-                        bot.ProcesoBotId = Cuenta.ProcesoBotId;
-                        bot.ip = Cuenta.ip;
-
-                        if (proceso.password != Cuenta.ProcesoBot.password)
-                        {
-                            proceso.update_At = DateTime.Now;
-                            proceso.password = Cuenta.ProcesoBot.password;
-                        }
-                        proceso.usuario = Cuenta.ProcesoBot.usuario;
+                        // Actualizar los campos deseados
+                        proceso.password = cuenta.password;
+                        proceso.update_At = DateTime.Now;
+                        proceso.Name_usuario = cuenta.Name_usuario;
 
                         _context.SaveChanges();
 
+                        return Ok(cuenta);
                     }
-                    return Ok(Cuenta);
+                    else
+                    {
+                        return NotFound("Proceso no encontrado");
+                    }
                 }
-
                 else
-                    return NotFound();
-
+                {
+                    return NotFound("IDs no coinciden");
+                }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
+
 
         [Route("ActualizarBot")]
         [HttpPut]
@@ -690,8 +666,9 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                 var datos = await _context.cat_procesosLimpieza.Select(proceso => new catalogoProcesosBotsLimpiezaModel
                 {
                     Id = proceso.Id,
-                    Name_process = proceso.Name_process,
-                    Status = proceso.Status
+                    Name_usuario = proceso.Name_usuario,
+                    Status = proceso.Status,
+                    Name_process = proceso.Name_process
                 }).ToListAsync();
 
                 if (datos.Count() > 0)
@@ -1364,7 +1341,7 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                     string sql = "INSERT INTO SeriesMasivo (puntoInventario, serie) VALUES (@puntoInventario, @serie)";
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@puntoInventario", data["PUNTO DE INVENTARIO"].ToString());
-                    cmd.Parameters.AddWithValue("@serie", data["Serie"].ToString());
+                    cmd.Parameters.AddWithValue("@serie", data["SERIE"].ToString());
                     cmd.ExecuteNonQuery();
                 }
                 conn.Close();

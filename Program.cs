@@ -34,13 +34,13 @@ builder.Services.AddAuthentication(opt =>
 .AddSaml2(Saml2Defaults.Scheme, opt =>
 {
     opt.SignInScheme = "external";
-    opt.SPOptions.EntityId = new EntityId("https://rpabackizzi.azurewebsites.net");
+    opt.SPOptions.EntityId = new EntityId("https://rpabackizzi.azurewebsites.net/Saml2");
     opt.IdentityProviders.Add(new IdentityProvider(
-        new EntityId("https://sts.windows.net/3ad84793-7b5f-4519-84ce-96790471f26a/"),
+        new EntityId("https://sts.windows.net/caca42e2-ad4a-4d19-824c-3ff3709bd840/"),
         opt.SPOptions)
     {
         LoadMetadata = true,
-        MetadataLocation = "https://compartidacyber.blob.core.windows.net/mariana/portalIZZI.xml",
+        MetadataLocation = "https://compartidacyber.blob.core.windows.net/mariana/AzureADSSOMariana.xml",
     });
 });
 
