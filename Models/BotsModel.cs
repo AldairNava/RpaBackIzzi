@@ -1,4 +1,7 @@
-﻿namespace WebApplication1.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace WebApplication1.Models
 {
     public class BotsModel
     {
@@ -22,7 +25,20 @@
         public DateTime? fechaActualizacion { get; set; }
         public DateTime? created_at { get; set; }
         public int? ProcesoBotId { get; set; }
-        public catalogoProcesosBotsModel? ProcesoBot { get; set; }
+        public catalogoProcesosBotsLimpiezaModel? ProcesoBot { get; set; }
+        public string? estado { get; set; }
+
+    }
+    public class BotsModelRetencion
+    {
+        public int Id { get; set; }
+        public string? comentarios { get; set; }
+        public string? hostName { get; set; }
+        public string? ip { get; set; }
+        public DateTime? fechaActualizacion { get; set; }
+        public DateTime? created_at { get; set; }
+        public int? ProcesoBotId { get; set; }
+        public catalogoProcesosBotsRetencionaModel? ProcesoBot { get; set; }
         public string? estado { get; set; }
 
     }
@@ -36,9 +52,22 @@
         public DateTime? update_At { get; set; }
         public string? Status { get; set; }
         public string? ulitmoDiaSend { get; set; }
+        public string? ultimo_usuario { get; set; }
 
     }
     public class catalogoProcesosBotsLimpiezaModel
+    {
+        public int Id { get; set; }
+        public string? Name_process { get; set; }
+        public string? Name_usuario { get; set; }
+        public string? usuario { get; set; }
+        public string? password { get; set; }
+        public DateTime? update_At { get; set; }
+        public string? Status { get; set; }
+        public string? ulitmoDiaSend { get; set; }
+
+    }
+    public class catalogoProcesosBotsRetencionaModel
     {
         public int Id { get; set; }
         public string? Name_process { get; set; }
@@ -85,6 +114,9 @@
         public int Id { get; set; }
         public string? serie { get; set; }
         public string? puntoInventario { get; set; }
+        public string? status { get; set; }
+        public DateTime? FechaCaptura { get; set; }
+        public DateTime? FechaCompletado { get; set; }
 
     }
 
@@ -160,6 +192,26 @@
         public string? NumeroCN { get; set; }
 
     }
+
+    public class okcliente
+    {
+        public int Id { get; set; }
+        public string? CnGenerado { get; set; }
+        public DateTime? FechaCaptura { get; set; }
+        public DateTime? FechaCompletado { get; set; }
+        public string? Status { get; set; }
+        public string? Cve_usuario { get; set; }
+        public string? Ip { get; set; }
+        public string? Cuenta { get; set; }
+        public string? numeroOrden { get; set; }
+        public string? Hub { get; set; }
+        public string? TipoOferta { get; set; }
+        public string? FechaEncuesta { get; set; }
+        public string? Nombre { get; set; }
+        public string? Telefono { get; set; }
+
+    }
+
 
     public class Usuario
     {

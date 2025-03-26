@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1;
 
@@ -11,9 +12,11 @@ using WebApplication1;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250320232813_procesretencion")]
+    partial class procesretencion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,37 +176,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("AjustesTiempoAjuste");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.ArchivosNotdone", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Archivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Cve_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaCaptura")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NombreArchivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoArchivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ArchivosNotdone");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.BasesDepuracion", b =>
                 {
                     b.Property<int>("Id")
@@ -265,7 +237,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("ProcesoBotId");
 
-                    b.ToTable("BotsProcess");
+                    b.ToTable("BotsModel");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.BotsModelRetencion", b =>
@@ -2101,9 +2073,6 @@ namespace WebApplication1.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cve_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Equipo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("FechaCaptura")
@@ -4164,7 +4133,7 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.BotsModelRetencion", b =>
                 {
-                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsRetencionaModel", "ProcesoBot")
+                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsModel", "ProcesoBot")
                         .WithMany()
                         .HasForeignKey("ProcesoBotId");
 
@@ -4173,7 +4142,7 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.BotsModellimpieza", b =>
                 {
-                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsLimpiezaModel", "ProcesoBot")
+                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsModel", "ProcesoBot")
                         .WithMany()
                         .HasForeignKey("ProcesoBotId");
 

@@ -63,6 +63,33 @@ namespace WebApplication1.Controllers
             }
 
         }
+        [HttpGet]
+        [Route("getTipoReportesSucursales")]
+        public async Task<ActionResult<IEnumerable<ReportesModel>>> getTipoReportesSucursales()
+        {
+            try
+            {
+                var datos = _context.Reportes.FromSqlRaw("SELECT * FROM ReportesSucursales;").ToList();
+                if (datos.Count() > 0)
+                {
+                    return Ok(datos);
+
+                }
+                else
+                {
+                    var d = new List<string>()
+                    {
+                        "SIN INFO"
+                    };
+                    return Ok(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
 
         [HttpGet]
         [Route("getReporteAjustesCasoNegocioCobranza")]
@@ -412,25 +439,6 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("R" + celda3, reader3["procesando"].ToString());
                 sl.SetCellValue("S" + celda3, reader3["IP"].ToString());
                 sl.SetCellValue("T" + celda3, reader3["estatusAjuste"].ToString());
-                //sl.SetCellStyle("B" + celda3, estilo1);
-                //sl.SetCellStyle("C" + celda3, estilo1);
-                //sl.SetCellStyle("D" + celda3, estilo1);
-                //sl.SetCellStyle("E" + celda3, estilo1);
-                //sl.SetCellStyle("F" + celda3, estilo1);
-                //sl.SetCellStyle("G" + celda3, estilo1);
-                //sl.SetCellStyle("H" + celda3, estilo1);
-                //sl.SetCellStyle("I" + celda3, estilo1);
-                //sl.SetCellStyle("J" + celda3, estilo1);
-                //sl.SetCellStyle("K" + celda3, estilo1);
-                //sl.SetCellStyle("L" + celda3, estilo1);
-                //sl.SetCellStyle("M" + celda3, estilo1);
-                //sl.SetCellStyle("N" + celda3, estilo1);
-                //sl.SetCellStyle("O" + celda3, estilo1);
-                //sl.SetCellStyle("P" + celda3, estilo1);
-                //sl.SetCellStyle("Q" + celda3, estilo1);
-                //sl.SetCellStyle("R" + celda3, estilo1);
-                //sl.SetCellStyle("S" + celda3, estilo1);
-                //sl.SetCellStyle("T" + celda3, estilo1);
             }
             con3.Close();
 
@@ -446,7 +454,7 @@ namespace WebApplication1.Controllers
             MemoryStream stream = new MemoryStream();
             sl.SaveAs(stream);
             stream.Position = 0;
-            return File(stream, "application/zip", "Reporte_Ajustes_CN_Cobranza.xlsx"); //regresa el pdf del reporte
+            return File(stream, "application/zip", "Reporte_Ajustes_CN_Cobranza.xlsx");
 
 
         }
@@ -804,7 +812,7 @@ namespace WebApplication1.Controllers
             sl.SetCellValue("O9", "Compañia");
             sl.SetCellValue("P9", "Comentarios");
             sl.SetCellValue("Q9", "ID");
-            //sl.SetCellValue("R9", "Lead_id");
+            sl.SetCellValue("R9", "IP");
             //sl.SetCellValue("S9", "Source");
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
@@ -859,7 +867,7 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("O" + celda, reader["Compania"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Compania"].ToString()));
                 sl.SetCellValue("P" + celda, reader["Comentarios"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Comentarios"].ToString()));
                 sl.SetCellValue("Q" + celda, reader["Id"].ToString());
-                //sl.SetCellValue("R" + celda, reader["lead_id"].ToString());
+                sl.SetCellValue("R" + celda, reader["IP"].ToString());
                 //sl.SetCellValue("S" + celda, reader["Source"].ToString());
                 //sl.SetCellStyle("B" + celda, estilo1);
                 //sl.SetCellStyle("C" + celda, estilo1);
@@ -947,7 +955,7 @@ namespace WebApplication1.Controllers
             sl.SetCellValue("X9", "Procesando");
             sl.SetCellValue("Y9", "Fecha Completado");
             sl.SetCellValue("Z9", "ID");
-            //sl.SetCellValue("AA9", "Lead_id");
+            sl.SetCellValue("AA9", "IP");
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
             sl.SetCellStyle("D9", estilo);
@@ -1009,7 +1017,7 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("X" + celda1, reader1["Procesando"].ToString());
                 sl.SetCellValue("Y" + celda1, reader1["FechaCompletado"].ToString());
                 sl.SetCellValue("Z" + celda1, reader1["Id"].ToString());
-                //sl.SetCellValue("AA" + celda1, reader1["lead_id"].ToString());
+                sl.SetCellValue("AA" + celda1, reader1["IP"].ToString());
                 //sl.SetCellStyle("B" + celda1, estilo1);
                 //sl.SetCellStyle("C" + celda1, estilo1);
                 //sl.SetCellStyle("D" + celda1, estilo1);
@@ -1641,6 +1649,8 @@ namespace WebApplication1.Controllers
             sl.SetCellValue("L9", "Procesando");
             sl.SetCellValue("M9", "Caso de negocio");
             sl.SetCellValue("N9", "Comentarios");
+            sl.SetCellValue("O9", "Ip");
+            sl.SetCellValue("P9", "Id");
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
             sl.SetCellStyle("D9", estilo);
@@ -1679,19 +1689,8 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("L" + celda1, reader1["Procesando"].ToString());
                 sl.SetCellValue("M" + celda1, reader1["casoNegocio"].ToString());
                 sl.SetCellValue("N" + celda1, reader1["comentarios"].ToString());
-                sl.SetCellStyle("B" + celda1, estilo1);
-                sl.SetCellStyle("C" + celda1, estilo1);
-                sl.SetCellStyle("D" + celda1, estilo1);
-                sl.SetCellStyle("E" + celda1, estilo1);
-                sl.SetCellStyle("F" + celda1, estilo1);
-                sl.SetCellStyle("G" + celda1, estilo1);
-                sl.SetCellStyle("H" + celda1, estilo1);
-                sl.SetCellStyle("I" + celda1, estilo1);
-                sl.SetCellStyle("J" + celda1, estilo1);
-                sl.SetCellStyle("K" + celda1, estilo1);
-                sl.SetCellStyle("L" + celda1, estilo1);
-                sl.SetCellStyle("M" + celda1, estilo1);
-                sl.SetCellStyle("N" + celda1, estilo1);
+                sl.SetCellValue("O" + celda1, reader1["IP"].ToString());
+                sl.SetCellValue("P" + celda1, reader1["Id"].ToString());
             }
             conn1.Close();
 
@@ -2260,7 +2259,7 @@ namespace WebApplication1.Controllers
                 ba1 = ms1.ToArray();
             }
             SLPicture pic1 = new SLPicture(ba1, DocumentFormat.OpenXml.Packaging.ImagePartType.Png);
-            pic1.SetPosition(1, 17);
+            pic1.SetPosition(1, 12);
             pic1.ResizeInPixels(250, 80);
             sl.InsertPicture(pic1);
             DateTime f1;
@@ -2271,24 +2270,24 @@ namespace WebApplication1.Controllers
             DateTime.TryParseExact(fecha2, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f2);
             string fechaFormateada1 = f2.ToString("dd-MM-yyyy");
 
-            sl.SetCellValue("J4", $"Reporte de Ajustes Casos de Negocio Cobranza");
-            sl.SetCellValue("J5", $"Fecha de Inicio: {fechaFormateada} A Fecha Final: {fechaFormateada1}");
-            sl.SetCellStyle("J5", estilo1);
+            sl.SetCellValue("D4", $"Reporte de Call Trouble");
+            sl.SetCellValue("D5", $"Fecha de Inicio: {fechaFormateada} A Fecha Final: {fechaFormateada1}");
+            sl.SetCellStyle("D5", estilo1);
 
             SLStyle estilo = sl.CreateStyle();
             estilo.Font.FontName = "Arial";
             estilo.Font.FontSize = 12;
             estilo.Font.Bold = true;
-            string colorHex = "#FFBF00";
+            string colorHex = "#FF671F";
             Color customColor = ColorTranslator.FromHtml(colorHex);
             estilo.Alignment.Horizontal = HorizontalAlignmentValues.Center;
             estilo.Font.SetFontThemeColor(SLThemeColorIndexValues.Light1Color);
 
             estilo.Fill.SetPattern(PatternValues.Solid, customColor, SLThemeColorIndexValues.Accent1Color);
 
-            sl.SetCellStyle("J4", estilo);
-            sl.MergeWorksheetCells("J4", "L4");
-            sl.MergeWorksheetCells("J5", "L5");
+            sl.SetCellStyle("D4", estilo);
+            sl.MergeWorksheetCells("D4", "L4");
+            sl.MergeWorksheetCells("D5", "L5");
 
             sl.SetColumnWidth(2, 20);
             sl.SetColumnWidth(3, 20);
@@ -2309,7 +2308,7 @@ namespace WebApplication1.Controllers
             sl.SetColumnWidth(18, 20);
             sl.SetColumnWidth(19, 20);
             sl.SetColumnWidth(20, 20);
-            sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Detalle");
+            sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Call Trouble");
             sl.SetCellValue("B9", "Cuenta");
             sl.SetCellValue("C9", "Tipo");
             sl.SetCellValue("D9", "Motivo");
@@ -2321,6 +2320,7 @@ namespace WebApplication1.Controllers
             sl.SetCellValue("J9", "Fecha Completado");
             sl.SetCellValue("K9", "Fecha Capturado");
             sl.SetCellValue("L9", "Usuario");
+            sl.SetCellValue("M9", "ID");
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
             sl.SetCellStyle("D9", estilo);
@@ -2332,6 +2332,7 @@ namespace WebApplication1.Controllers
             sl.SetCellStyle("J9", estilo);
             sl.SetCellStyle("K9", estilo);
             sl.SetCellStyle("L9", estilo);
+            sl.SetCellStyle("M9", estilo);
             SLPageSettings sp = new SLPageSettings
             {
                 ShowGridLines = false
@@ -2339,7 +2340,7 @@ namespace WebApplication1.Controllers
             sl.SetPageSettings(sp);
 
             int celda = 9;
-            string sql = $"select Cuenta,Tipo,Motivo,Comentarios,NumeroCN,Status,Cve_usuario,Ip,NumeroOrden,FechaCaptura,FechaCompletado from OrdenTroubleCall where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            string sql = $"select Id,Cuenta,Tipo,Motivo,Comentarios,NumeroCN,Status,Cve_usuario,Ip,NumeroOrden,FechaCaptura,FechaCompletado from OrdenTroubleCall where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
             conn.Open();
@@ -2362,6 +2363,7 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("J" + celda, reader["FechaCompletado"].ToString());
                 sl.SetCellValue("K" + celda, reader["FechaCaptura"].ToString());
                 sl.SetCellValue("L" + celda, reader["Cve_usuario"].ToString());
+                sl.SetCellValue("M" + celda, reader["Id"].ToString());
             }
 
             sl.SelectWorksheet("Detalle");
@@ -2371,6 +2373,295 @@ namespace WebApplication1.Controllers
             sl.SaveAs(stream);
             stream.Position = 0;
             return File(stream, "application/zip", "Reporte_Ordenes_Call_Trouble.xlsx"); //regresa el pdf del reporte
+
+
+        }
+
+        [HttpGet]
+        [Route("ReporteOkCliente")]
+        public IActionResult ReporteOkCliente(string fecha1, string fecha2)
+        {
+            SLDocument sl = new SLDocument();
+            var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
+            var pathimg2 = $"{this._webHostEnvironment.WebRootPath}\\img\\Logo_Izzi.svg.png";
+            SLStyle estilo1 = sl.CreateStyle();
+            estilo1.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+
+
+            System.Drawing.Bitmap bm = new System.Drawing.Bitmap(pathimg);
+            byte[] ba;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                bm.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                ms.Close();
+                ba = ms.ToArray();
+            }
+            SLPicture pic = new SLPicture(ba, DocumentFormat.OpenXml.Packaging.ImagePartType.Png);
+            pic.SetPosition(1, 1);
+            pic.ResizeInPixels(250, 80);
+            sl.InsertPicture(pic);
+
+            System.Drawing.Bitmap bm1 = new System.Drawing.Bitmap(pathimg2);
+            byte[] ba1;
+            using (System.IO.MemoryStream ms1 = new System.IO.MemoryStream())
+            {
+                bm1.Save(ms1, System.Drawing.Imaging.ImageFormat.Png);
+                ms1.Close();
+                ba1 = ms1.ToArray();
+            }
+            SLPicture pic1 = new SLPicture(ba1, DocumentFormat.OpenXml.Packaging.ImagePartType.Png);
+            pic1.SetPosition(1, 8);
+            pic1.ResizeInPixels(250, 80);
+            sl.InsertPicture(pic1);
+            DateTime f1;
+            DateTime f2;
+
+            DateTime.TryParseExact(fecha1, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f1);
+            string fechaFormateada = f1.ToString("dd-MM-yyyy");
+            DateTime.TryParseExact(fecha2, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f2);
+            string fechaFormateada1 = f2.ToString("dd-MM-yyyy");
+
+            sl.SetCellValue("D4", $"Reporte de Ok Cliente");
+            sl.SetCellValue("D5", $"Fecha de Inicio: {fechaFormateada} A Fecha Final: {fechaFormateada1}");
+            sl.SetCellStyle("D5", estilo1);
+
+            SLStyle estilo = sl.CreateStyle();
+            estilo.Font.FontName = "Arial";
+            estilo.Font.FontSize = 12;
+            estilo.Font.Bold = true;
+            string colorHex = "#2E8B57";
+            Color customColor = ColorTranslator.FromHtml(colorHex);
+            estilo.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+            estilo.Font.SetFontThemeColor(SLThemeColorIndexValues.Light1Color);
+
+            estilo.Fill.SetPattern(PatternValues.Solid, customColor, SLThemeColorIndexValues.Accent1Color);
+
+            sl.SetCellStyle("D4", estilo);
+            sl.MergeWorksheetCells("D4", "H4");
+            sl.MergeWorksheetCells("D5", "H5");
+
+            sl.SetColumnWidth(2, 20);
+            sl.SetColumnWidth(3, 20);
+            sl.SetColumnWidth(4, 20);
+            sl.SetColumnWidth(5, 20);
+            sl.SetColumnWidth(6, 30);
+            sl.SetColumnWidth(7, 25);
+            sl.SetColumnWidth(8, 30);
+            sl.SetColumnWidth(9, 25);
+            sl.SetColumnWidth(10, 30);
+            sl.SetColumnWidth(11, 30);
+            sl.SetColumnWidth(12, 25);
+            sl.SetColumnWidth(13, 25);
+            sl.SetColumnWidth(14, 30);
+            sl.SetColumnWidth(15, 40);
+            sl.SetColumnWidth(16, 20);
+            sl.SetColumnWidth(17, 20);
+            sl.SetColumnWidth(18, 20);
+            sl.SetColumnWidth(19, 20);
+            sl.SetColumnWidth(20, 20);
+            sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Ok-Cliente");
+            sl.SetCellValue("B9", "Cuenta");
+            sl.SetCellValue("C9", "Numero de Orden");
+            sl.SetCellValue("D9", "Status");
+            sl.SetCellValue("E9", "CN Generado");
+            sl.SetCellValue("F9", "Fecha Capturado");
+            sl.SetCellValue("G9", "Fecha Completado");
+            sl.SetCellValue("H9", "Usuario");
+            sl.SetCellValue("I9", "Ip");
+            sl.SetCellValue("J9", "Id");
+            sl.SetCellStyle("B9", estilo);
+            sl.SetCellStyle("C9", estilo);
+            sl.SetCellStyle("D9", estilo);
+            sl.SetCellStyle("E9", estilo);
+            sl.SetCellStyle("F9", estilo);
+            sl.SetCellStyle("G9", estilo);
+            sl.SetCellStyle("H9", estilo);
+            sl.SetCellStyle("I9", estilo);
+            SLPageSettings sp = new SLPageSettings
+            {
+                ShowGridLines = false
+            };
+            sl.SetPageSettings(sp);
+
+            int celda = 9;
+            string sql = $"select Cuenta,CnGenerado, Id, Status,Cve_usuario,Ip,numeroOrden,FechaCaptura,FechaCompletado from okcliente where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            SqlConnection conn = new SqlConnection();
+            conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 120;
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                celda++;
+                sl.SetCellValue("B" + celda, reader["Cuenta"].ToString());
+                sl.SetCellValue("C" + celda, reader["numeroOrden"].ToString());
+                sl.SetCellValue("D" + celda, reader["Status"].ToString());
+                sl.SetCellValue("E" + celda, reader["CnGenerado"].ToString());
+                sl.SetCellValue("F" + celda, reader["FechaCaptura"].ToString());
+                sl.SetCellValue("G" + celda, reader["FechaCompletado"].ToString());
+                sl.SetCellValue("H" + celda, reader["Cve_usuario"].ToString());
+                sl.SetCellValue("I" + celda, reader["Ip"].ToString());
+                sl.SetCellValue("J" + celda, reader["Id"].ToString());
+            }
+
+            sl.SelectWorksheet("Detalle");
+
+
+            MemoryStream stream = new MemoryStream();
+            sl.SaveAs(stream);
+            stream.Position = 0;
+            return File(stream, "application/zip", "Reporte_Ok-Cliente.xlsx");
+
+
+        }
+
+        [HttpGet]
+        [Route("ReporteRetencion0")]
+        public IActionResult ReporteRetencion0(string fecha1, string fecha2)
+        {
+            SLDocument sl = new SLDocument();
+            var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
+            var pathimg2 = $"{this._webHostEnvironment.WebRootPath}\\img\\Logo_Izzi.svg.png";
+            SLStyle estilo1 = sl.CreateStyle();
+            estilo1.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+
+
+            System.Drawing.Bitmap bm = new System.Drawing.Bitmap(pathimg);
+            byte[] ba;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                bm.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                ms.Close();
+                ba = ms.ToArray();
+            }
+            SLPicture pic = new SLPicture(ba, DocumentFormat.OpenXml.Packaging.ImagePartType.Png);
+            pic.SetPosition(1, 1);
+            pic.ResizeInPixels(250, 80);
+            sl.InsertPicture(pic);
+
+            System.Drawing.Bitmap bm1 = new System.Drawing.Bitmap(pathimg2);
+            byte[] ba1;
+            using (System.IO.MemoryStream ms1 = new System.IO.MemoryStream())
+            {
+                bm1.Save(ms1, System.Drawing.Imaging.ImageFormat.Png);
+                ms1.Close();
+                ba1 = ms1.ToArray();
+            }
+            SLPicture pic1 = new SLPicture(ba1, DocumentFormat.OpenXml.Packaging.ImagePartType.Png);
+            pic1.SetPosition(1, 11);
+            pic1.ResizeInPixels(250, 80);
+            sl.InsertPicture(pic1);
+            DateTime f1;
+            DateTime f2;
+
+            DateTime.TryParseExact(fecha1, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f1);
+            string fechaFormateada = f1.ToString("dd-MM-yyyy");
+            DateTime.TryParseExact(fecha2, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f2);
+            string fechaFormateada1 = f2.ToString("dd-MM-yyyy");
+
+            sl.SetCellValue("F4", $"Reporte de Retencion 0");
+            sl.SetCellValue("F5", $"Fecha de Inicio: {fechaFormateada} A Fecha Final: {fechaFormateada1}");
+            sl.SetCellStyle("F5", estilo1);
+
+            SLStyle estilo = sl.CreateStyle();
+            estilo.Font.FontName = "Arial";
+            estilo.Font.FontSize = 12;
+            estilo.Font.Bold = true;
+            string colorHex = "#2E8B57";
+            Color customColor = ColorTranslator.FromHtml(colorHex);
+            estilo.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+            estilo.Font.SetFontThemeColor(SLThemeColorIndexValues.Light1Color);
+
+            estilo.Fill.SetPattern(PatternValues.Solid, customColor, SLThemeColorIndexValues.Accent1Color);
+
+            sl.SetCellStyle("F4", estilo);
+            sl.MergeWorksheetCells("F4", "I4");
+            sl.MergeWorksheetCells("F5", "I5");
+
+            sl.SetColumnWidth(2, 20);
+            sl.SetColumnWidth(3, 20);
+            sl.SetColumnWidth(4, 20);
+            sl.SetColumnWidth(5, 20);
+            sl.SetColumnWidth(6, 30);
+            sl.SetColumnWidth(7, 25);
+            sl.SetColumnWidth(8, 30);
+            sl.SetColumnWidth(9, 25);
+            sl.SetColumnWidth(10, 30);
+            sl.SetColumnWidth(11, 30);
+            sl.SetColumnWidth(12, 25);
+            sl.SetColumnWidth(13, 25);
+            sl.SetColumnWidth(14, 30);
+            sl.SetColumnWidth(15, 40);
+            sl.SetColumnWidth(16, 20);
+            sl.SetColumnWidth(17, 20);
+            sl.SetColumnWidth(18, 20);
+            sl.SetColumnWidth(19, 20);
+            sl.SetColumnWidth(20, 20);
+            sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Retencion-0");
+            sl.SetCellValue("B9", "Cuenta");
+            sl.SetCellValue("C9", "Caso Negocio");
+            sl.SetCellValue("D9", "Status");
+            sl.SetCellValue("E9", "Numero Ajuste");
+            sl.SetCellValue("F9", "Fecha Capturado");
+            sl.SetCellValue("G9", "Fecha Completado");
+            sl.SetCellValue("H9", "Usuario");
+            sl.SetCellValue("I9", "Ip");
+            sl.SetCellValue("J9", "Proceso");
+            sl.SetCellValue("K9", "Monto Ajustado");
+            sl.SetCellValue("L9", "Ajuste Previo");
+            sl.SetCellStyle("B9", estilo);
+            sl.SetCellStyle("C9", estilo);
+            sl.SetCellStyle("D9", estilo);
+            sl.SetCellStyle("E9", estilo);
+            sl.SetCellStyle("F9", estilo);
+            sl.SetCellStyle("G9", estilo);
+            sl.SetCellStyle("H9", estilo);
+            sl.SetCellStyle("I9", estilo);
+            sl.SetCellStyle("J9", estilo);
+            sl.SetCellStyle("K9", estilo);
+            sl.SetCellStyle("L9", estilo);
+            SLPageSettings sp = new SLPageSettings
+            {
+                ShowGridLines = false
+            };
+            sl.SetPageSettings(sp);
+
+            int celda = 9;
+            string sql = $"select Cuenta,NumeroAjuste, AjustePrevio, Proceso, Status,Cve_usuario,Ip,CasoNegocio,FechaCaptura,FechaCompletado,MontoAjustado from Retencion where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            SqlConnection conn = new SqlConnection();
+            conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 120;
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                celda++;
+                sl.SetCellValue("B" + celda, reader["Cuenta"].ToString());
+                sl.SetCellValue("C" + celda, reader["CasoNegocio"].ToString());
+                sl.SetCellValue("D" + celda, reader["Status"].ToString());
+                sl.SetCellValue("E" + celda, reader["NumeroAjuste"].ToString());
+                sl.SetCellValue("F" + celda, reader["FechaCaptura"].ToString());
+                sl.SetCellValue("G" + celda, reader["FechaCompletado"].ToString());
+                sl.SetCellValue("H" + celda, reader["Cve_usuario"].ToString());
+                sl.SetCellValue("I" + celda, reader["Ip"].ToString());
+                sl.SetCellValue("J" + celda, reader["Proceso"].ToString());
+                sl.SetCellValue("k" + celda, reader["MontoAjustado"].ToString());
+                sl.SetCellValue("L" + celda, reader["AjustePrevio"].ToString());
+            }
+
+            sl.SelectWorksheet("Detalles");
+
+
+            MemoryStream stream = new MemoryStream();
+            sl.SaveAs(stream);
+            stream.Position = 0;
+            return File(stream, "application/zip", "Reporte-Retencion-0.xlsx");
 
 
         }

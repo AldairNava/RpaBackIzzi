@@ -32,8 +32,10 @@ namespace WebApplication1
         public DbSet<NotDoneModel> EjecucionNotDone { get; set; }
         public DbSet<BotsModel> BotsProcess { get; set; }
         public DbSet<BotsModellimpieza> BotsProcessLimpieza { get; set; }
+        public DbSet<BotsModelRetencion> BotsProcessRetencion { get; set; }
         public DbSet<catalogoProcesosBotsModel> cat_procesos { get; set; }
         public DbSet<catalogoProcesosBotsLimpiezaModel> cat_procesosLimpieza { get; set; }
+        public DbSet<catalogoProcesosBotsRetencionaModel> cat_procesosRetencion { get; set; }
         public DbSet<AjustesTiempoAjusteModel> AjustesTiempoAjuste { get; set; }
         public DbSet<AjustesNotDoneModel> AjustesNotDone { get; set; }
         public DbSet<AjustesSinValidacionModel> AjustesSinValidacion { get; set; }
@@ -59,6 +61,12 @@ namespace WebApplication1
         public DbSet<SeriesMasivo>SeriesMasivo { get; set; }
         public DbSet<seriesExlcucion> seriesExlcucion { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<okcliente> okcliente { get; set; }
+        public DbSet<Retencion> Retencion { get; set; }
+        public DbSet<DepuracionNotdone> DepuracionNotdone { get; set; }
+        public DbSet<DepuracionNotdonefinal> DepuracionNotdoneFinal { get; set; }
+        public DbSet<DepuracionNotDoneOriginal> DepuracionNotDoneOriginal { get; set; }
+        public DbSet<ArchivosNotdone> ArchivosNotdone { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

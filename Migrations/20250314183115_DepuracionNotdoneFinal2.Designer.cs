@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1;
 
@@ -11,9 +12,11 @@ using WebApplication1;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250314183115_DepuracionNotdoneFinal2")]
+    partial class DepuracionNotdoneFinal2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,37 +176,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("AjustesTiempoAjuste");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.ArchivosNotdone", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Archivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Cve_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaCaptura")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NombreArchivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoArchivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ArchivosNotdone");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.BasesDepuracion", b =>
                 {
                     b.Property<int>("Id")
@@ -265,43 +237,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("ProcesoBotId");
 
-                    b.ToTable("BotsProcess");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.BotsModelRetencion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ProcesoBotId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("comentarios")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("created_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("estado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("fechaActualizacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("hostName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ip")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProcesoBotId");
-
-                    b.ToTable("BotsProcessRetencion");
+                    b.ToTable("BotsModel");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.BotsModellimpieza", b =>
@@ -2103,9 +2039,6 @@ namespace WebApplication1.Migrations
                     b.Property<string>("Cve_usuario")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Equipo")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("FechaCaptura")
                         .HasColumnType("datetime2");
 
@@ -2311,40 +2244,6 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("cat_procesos");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.catalogoProcesosBotsRetencionaModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name_process")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("password")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ulitmoDiaSend")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("update_At")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("cat_procesosRetencion");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.depuracionExportSiebel", b =>
@@ -4162,18 +4061,9 @@ namespace WebApplication1.Migrations
                     b.Navigation("ProcesoBot");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.BotsModelRetencion", b =>
-                {
-                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsRetencionaModel", "ProcesoBot")
-                        .WithMany()
-                        .HasForeignKey("ProcesoBotId");
-
-                    b.Navigation("ProcesoBot");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.BotsModellimpieza", b =>
                 {
-                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsLimpiezaModel", "ProcesoBot")
+                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsModel", "ProcesoBot")
                         .WithMany()
                         .HasForeignKey("ProcesoBotId");
 

@@ -452,6 +452,57 @@ namespace WebApplication1.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("estadisticasCallTrouble")]
+        public async Task<ActionResult<IEnumerable<EstadisticasNotDonemodel>>> estadisticasCallTrouble(string startDateStr, string endDateStr)
+        {
+            try
+            {
+
+                ArrayList objs = new ArrayList();
+
+                var datos = await _context.EstadisticasNotDonestats.FromSqlRaw($"EXEC EstadisticasCallTrouble '{startDateStr}', '{endDateStr}'").ToListAsync();
+
+                var datos1 = await _context.EstadisticasNotDonestats.FromSqlRaw($"EXEC EstadisticasCallTroubleMotivo '{startDateStr}', '{endDateStr}'").ToListAsync();
+
+                var datos2 = await _context.EstadisticasNotDonestats.FromSqlRaw($"EXEC EstadisticasCallTroubleMes '{startDateStr}', '{endDateStr}'").ToListAsync();
+
+                var datos3 = await _context.EstadisticasNotDonestats.FromSqlRaw($"EXEC EstadisticasCallTroubleDia '{startDateStr}', '{endDateStr}'").ToListAsync();
+
+                var datos4 = await _context.EstadisticasNotDonestats.FromSqlRaw($"EXEC EstadisticasCallTroubleStatus '{startDateStr}', '{endDateStr}'").ToListAsync();
+
+                var datos5 = await _context.EstadisticasNotDonestats.FromSqlRaw($"EXEC EstadisticasCallTroubleIP '{startDateStr}', '{endDateStr}'").ToListAsync();
+
+                objs.Add(new
+                {
+                    grafica = datos,
+                    motivoAjuste = datos1,
+                    mes = datos2,
+                    dia = datos3,
+                    status = datos4,
+                    ip = datos5,
+                });
+
+                if (datos.Count() > 0)
+                {
+                    return Ok(objs);
+
+                }
+                else
+                {
+                    var d = new List<string>()
+                                {
+                                    "SIN INFO"
+                                };
+                    return Ok(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
 
 

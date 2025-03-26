@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1;
 
@@ -11,9 +12,11 @@ using WebApplication1;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250218193551_eliminar")]
+    partial class eliminar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,37 +176,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("AjustesTiempoAjuste");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.ArchivosNotdone", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Archivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Cve_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaCaptura")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NombreArchivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoArchivo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ArchivosNotdone");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.BasesDepuracion", b =>
                 {
                     b.Property<int>("Id")
@@ -266,42 +238,6 @@ namespace WebApplication1.Migrations
                     b.HasIndex("ProcesoBotId");
 
                     b.ToTable("BotsProcess");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.BotsModelRetencion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ProcesoBotId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("comentarios")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("created_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("estado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("fechaActualizacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("hostName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ip")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProcesoBotId");
-
-                    b.ToTable("BotsProcessRetencion");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.BotsModellimpieza", b =>
@@ -439,411 +375,6 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CasosNegocioSinValidacion");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.DepuracionNotDoneOriginal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Activo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Apellidos")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AplicaTablet")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Aprobado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AprobadoPor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CanalDeIngreso")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Centro")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaveDelTecnicoPrincipal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaveVendedor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CodigoDeTipoDeOrden")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Comentarios")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Compania")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompletadaPor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ConfirmacionDeInstalacion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Creado")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreadoPor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CtaEspecial")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CuentaDeFacturacion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Direccion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DocumentoDePrueba")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EnviadaPor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Equipo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Estado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EstadoAdmision")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EstadoDeAsignacionDeCredito")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EstadoEnFecha")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FechaAdmision")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FechaDeLaOrden")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaSolicitada")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Hub")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ListaDeImpuestos")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ListaDePrecios")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MensualidadTotal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Moneda")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MotivoDeLaCancelacion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MotivoDeLaOrden")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MotivoDeReprogramacion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NoProgramaciones")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NoTelefonoPrincipal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NoVTS")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nombre")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumeroDeCuenta")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumeroDeOrden")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrdenDePortabilidad")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PorcentajeDeDescuento")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Prioridad")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Referido")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Revision")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Sistema")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubEstado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Telefonos")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Tipo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoDeCuenta")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoEMTA")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TotalDeCNR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransferidoAlLibroDeTrabajoDeTransacciones")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UltimaModificacion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UltimaModificacionPor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DepuracionNotDoneOriginal");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.DepuracionNotdone", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CIUDAD")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("COMENTARIOS")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CREADO_POR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CUENTA")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DIRECCION")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ESTADO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FECHA_APERTURA")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FECHA_SOLICITADA")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("HUB")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MOTIVO_CANCELACION")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MOTIVO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MOTIVO_REPROGRAMACION")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NOMBRE_CLIENTE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NUMERO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NUM_REPRO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PAQUETE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PERFIL_PAGO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PLAZA")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("REFERIDO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RPT")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SITUACION_ANTICIPO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SUBTIPO_CLIENTE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SUBTIPO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TECNICO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL4")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TIPO_CLIENTE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TIPO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ULTIMA_MOD_POR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VENDEDOR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DepuracionNotdone");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.DepuracionNotdonefinal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CIUDAD")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("COMENTARIOS")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CREADO_POR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CUENTA")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DIRECCION")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ESTADO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FECHA_APERTURA")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FECHA_SOLICITADA")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("HUB")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MOTIVO_CANCELACION")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MOTIVO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MOTIVO_REPROGRAMACION")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NOMBRE_CLIENTE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NUMERO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NUM_REPRO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PAQUETE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PERFIL_PAGO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PLAZA")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("REFERIDO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RPT")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SITUACION_ANTICIPO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SUBTIPO_CLIENTE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SUBTIPO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TECNICO")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TEL4")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TIPO_CLIENTE")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TIPO_ORDEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ULTIMA_MOD_POR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VENDEDOR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DepuracionNotdoneFinal");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Depuracion_resultados_importados_RPA", b =>
@@ -2083,55 +1614,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("Reportes");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.Retencion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AjustePrevio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CasoNegocio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Cuenta")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Cve_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Equipo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaCaptura")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaCompletado")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Ip")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MontoAjustado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumeroAjuste")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Proceso")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Retencion");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.SeriesMasivo", b =>
                 {
                     b.Property<int>("Id")
@@ -2311,40 +1793,6 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("cat_procesos");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.catalogoProcesosBotsRetencionaModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name_process")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("password")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ulitmoDiaSend")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("update_At")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("cat_procesosRetencion");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.depuracionExportSiebel", b =>
@@ -4043,25 +3491,10 @@ namespace WebApplication1.Migrations
                     b.Property<DateTime?>("FechaCompletado")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FechaEncuesta")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Hub")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Ip")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Nombre")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Telefono")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoOferta")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("numeroOrden")
@@ -4162,18 +3595,9 @@ namespace WebApplication1.Migrations
                     b.Navigation("ProcesoBot");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.BotsModelRetencion", b =>
-                {
-                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsRetencionaModel", "ProcesoBot")
-                        .WithMany()
-                        .HasForeignKey("ProcesoBotId");
-
-                    b.Navigation("ProcesoBot");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.BotsModellimpieza", b =>
                 {
-                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsLimpiezaModel", "ProcesoBot")
+                    b.HasOne("WebApplication1.Models.catalogoProcesosBotsModel", "ProcesoBot")
                         .WithMany()
                         .HasForeignKey("ProcesoBotId");
 

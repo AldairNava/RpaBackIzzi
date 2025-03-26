@@ -203,12 +203,13 @@ namespace WebApplication1.Controllers
                 conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
                 conn.Open();
                 string sql = "SELECT " +
-                               "  Status AS GroupedStatus, " +
-                               "  COUNT(*) AS TotalCount " +
-                               "FROM AjustesSinValidacion " +
-                               $"WHERE CONVERT(date, FechaCaptura) BETWEEN '{fecha1}' AND '{fecha2}' " +
-                               "  AND (Status LIKE 'Procesando' OR Status LIKE 'Error%') " +
-                               "GROUP BY Status";
+                             "  Status AS GroupedStatus, " +
+                             "  COUNT(*) AS TotalCount " +
+                             "FROM AjustesSinValidacion " +
+                             $"WHERE CONVERT(date, FechaCaptura) BETWEEN '{fecha1}' AND '{fecha2}' " +
+                             "  AND (Status LIKE 'Procesando' OR Status LIKE 'Error%') " +
+                             "  AND Status != 'Error al crear cn' " +
+                             "GROUP BY Status";
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 SqlDataReader reader = cmd.ExecuteReader();
                 ArrayList objs = new ArrayList();

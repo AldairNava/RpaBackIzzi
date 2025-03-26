@@ -31,7 +31,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getBotsLimpieza")]
-        public async Task<ActionResult<IEnumerable<BotsModel>>> getBotsLimpieza()
+        public async Task<ActionResult<IEnumerable<BotsModellimpieza>>> getBotsLimpieza()
         {
             try
             {
@@ -96,12 +96,12 @@ namespace WebApplication1.Controllers
         }
         [HttpGet]
         [Route("getBotsEstadoLimpieza")]
-        public async Task<ActionResult<IEnumerable<BotsModel>>> getBotsEstadoLimpieza()
+        public async Task<ActionResult<IEnumerable<BotsModellimpieza>>> getBotsEstadoLimpieza()
         {
             try
             {
                 var query = from bot in _context.BotsProcessLimpieza
-
+                            orderby bot.ip ascending
                             select new
                             {
                                 BotId = bot.Id,
@@ -136,9 +136,8 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                //var datos = _context.BotsProcess.FromSqlRaw("select * from BotsProcess;").ToList();
                 var query = from bot in _context.BotsProcess
-                            
+                            orderby bot.ip ascending
                             select new
                             {
                                 BotId = bot.Id,
@@ -554,13 +553,13 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
 
         [Route("ActualizarBotProcessLimpieza")]
         [HttpPut]
-        public dynamic ActualizarBotProcessLimpieza(int id, [FromBody] BotsModel Cuenta)
+        public dynamic ActualizarBotProcessLimpieza(int id, [FromBody] BotsModellimpieza Cuenta)
         {
             try
             {
                 if (id == Cuenta.Id)
                 {
-                    var bot = _context.BotsProcess.FirstOrDefault(b => b.Id == id);
+                    var bot = _context.BotsProcessLimpieza.FirstOrDefault(b => b.Id == id);
 
                     if (bot != null)
                     {
@@ -893,7 +892,7 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
 
         [Route("ActualizarProceso")]
         [HttpPut]
-        public dynamic ActualizarProceso(int id, [FromBody] catalogoProcesosBotsModel Cuenta)
+        public dynamic ActualizarProceso(int id, [FromBody] catalogoProcesosBotsModel Cuenta, [FromQuery] string usuarioActualizador)
         {
             try
             {
@@ -912,8 +911,10 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                             proceso.password = Cuenta.password; // Actualizar el campo password
                         }
 
-                        _context.SaveChanges();
+                        // Guardar el usuario que hace la actualización
+                        proceso.ultimo_usuario = usuarioActualizador;
 
+                        _context.SaveChanges();
                     }
                     return Ok(Cuenta);
                 }
@@ -927,6 +928,7 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                 return BadRequest(ex.Message);
             }
         }
+
 
 
         [Route("EliminarProceso")]
@@ -1150,6 +1152,8 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
             }
         }
 
+
+
         [HttpGet]
         [Route("ObtenerSeries")]
         public async Task<ActionResult<IEnumerable<series>>> ObtenerSeries()
@@ -1289,15 +1293,17 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                 var datos = _context.SeriesMasivo.FromSqlRaw("exec Sp_getseriesMasivo").ToList();
                 if (datos.Count() > 0)
                 {
-                    // Agrupa los valores de 'serie' y 'puntoInventario' en listas separadas.
+                    // Agrupa los valores de 'serie', 'puntoInventario' y 'FechaCaptura' en listas separadas.
                     var seriesList = datos.Select(d => d.serie).ToList();
                     var puntoInventarioList = datos.Select(d => d.puntoInventario).ToList();
+                    var fechaCapturaList = datos.Select(d => d.FechaCaptura).ToList();
 
                     // Crea un objeto anónimo que contiene ambas listas.
                     var result = new
                     {
                         series = seriesList,
-                        puntoInventario = puntoInventarioList
+                        puntoInventario = puntoInventarioList,
+                        fechaCaptura = fechaCapturaList
                     };
 
                     return Ok(result);
@@ -1308,7 +1314,8 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                     var result = new
                     {
                         series = new List<string> { "SIN INFO" },
-                        puntoInventario = new List<string> { "SIN INFO" }
+                        puntoInventario = new List<string> { "SIN INFO" },
+                        fechaCaptura = new List<DateTime?> { null }
                     };
 
                     return Ok(result);
@@ -1319,6 +1326,7 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                 return BadRequest(ex.Message);
             }
         }
+
 
 
 
@@ -1332,16 +1340,15 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
             {
                 conn.Open();
 
-                string truncateSql = "TRUNCATE TABLE SeriesMasivo";
-                SqlCommand truncateCmd = new SqlCommand(truncateSql, conn);
-                truncateCmd.ExecuteNonQuery();
-
                 foreach (var data in Info)
                 {
-                    string sql = "INSERT INTO SeriesMasivo (puntoInventario, serie) VALUES (@puntoInventario, @serie)";
+                    string sql = "INSERT INTO SeriesMasivo (puntoInventario, serie, FechaCaptura, FechaCompletado, status) VALUES (@puntoInventario, @serie, @FechaCaptura, @FechaCompletado, @status)";
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@puntoInventario", data["PUNTO DE INVENTARIO"].ToString());
                     cmd.Parameters.AddWithValue("@serie", data["SERIE"].ToString());
+                    cmd.Parameters.AddWithValue("@FechaCaptura", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@FechaCompletado", "");
+                    cmd.Parameters.AddWithValue("@status", "Pendiente");
                     cmd.ExecuteNonQuery();
                 }
                 conn.Close();
@@ -1353,6 +1360,7 @@ public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> 
                 return BadRequest(ex.Message);
             }
         }
+
 
 
         [HttpGet]
