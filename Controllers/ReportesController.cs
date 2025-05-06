@@ -2612,6 +2612,8 @@ namespace WebApplication1.Controllers
             sl.SetCellValue("J9", "Proceso");
             sl.SetCellValue("K9", "Monto Ajustado");
             sl.SetCellValue("L9", "Ajuste Previo");
+            sl.SetCellValue("M9", "Equipo");
+            sl.SetCellValue("N9", "Esttus OS");
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
             sl.SetCellStyle("D9", estilo);
@@ -2623,6 +2625,8 @@ namespace WebApplication1.Controllers
             sl.SetCellStyle("J9", estilo);
             sl.SetCellStyle("K9", estilo);
             sl.SetCellStyle("L9", estilo);
+            sl.SetCellStyle("M9", estilo);
+            sl.SetCellStyle("N9", estilo);
             SLPageSettings sp = new SLPageSettings
             {
                 ShowGridLines = false
@@ -2630,7 +2634,7 @@ namespace WebApplication1.Controllers
             sl.SetPageSettings(sp);
 
             int celda = 9;
-            string sql = $"select Cuenta,NumeroAjuste, AjustePrevio, Proceso, Status,Cve_usuario,Ip,CasoNegocio,FechaCaptura,FechaCompletado,MontoAjustado from Retencion where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            string sql = $"select Cuenta,NumeroAjuste,EstatusOS, AjustePrevio,Equipo, Proceso, Status,Cve_usuario,Ip,CasoNegocio,FechaCaptura,FechaCompletado,MontoAjustado from Retencion where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
             conn.Open();
@@ -2653,6 +2657,8 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("J" + celda, reader["Proceso"].ToString());
                 sl.SetCellValue("k" + celda, reader["MontoAjustado"].ToString());
                 sl.SetCellValue("L" + celda, reader["AjustePrevio"].ToString());
+                sl.SetCellValue("M" + celda, reader["Equipo"].ToString());
+                sl.SetCellValue("N" + celda, reader["EstatusOS"].ToString());
             }
 
             sl.SelectWorksheet("Detalles");

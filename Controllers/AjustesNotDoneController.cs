@@ -5,6 +5,12 @@ using System.Collections;
 using System.Net;
 using System.Text.Json.Nodes;
 using WebApplication1.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebApplication1.Controllers
 {
@@ -18,6 +24,9 @@ namespace WebApplication1.Controllers
         {
             _context = context;
         }
+
+        private static readonly object _lock = new object();
+        private static DateTime _lastRequestUtc = DateTime.MinValue;
 
         [HttpGet]
         [Route("getCuentaAjustesCasosNegocioCobranza")]
@@ -812,30 +821,34 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getCuentaAjustesSinValidacion")]
-        public async Task<ActionResult<IEnumerable<AjustesSinValidacionModel>>> getCuentaAjustesSinValidacion()
+        public async Task<ActionResult> GetCuentaAjustesSinValidacion()
         {
+            lock (_lock)
+            {
+                var now = DateTime.UtcNow;
+                if ((now - _lastRequestUtc).TotalSeconds < 2)
+                {
+                    return Ok(new List<string> { "SIN INFO" });
+                }
+                _lastRequestUtc = now;
+            }
+
             try
             {
-                var datos = _context.AjustesSinValidacion.FromSqlRaw("exec Sp_getCuentaAjustesSinValidacion").ToList();
-                if (datos.Count() > 0)
-                {
-                    return Ok(datos);
+                var datos = await _context
+                    .AjustesSinValidacion
+                    .FromSqlRaw("EXEC Sp_getCuentaAjustesSinValidacion")
+                    .ToListAsync();
 
-                }
+                if (datos.Any())
+                    return Ok(datos);
                 else
-                {
-                    var d = new List<string>()
-                    {
-                        "SIN INFO"
-                    };
-                    return Ok(d);
-                }
+                    return Ok(new List<string> { "SIN INFO" });
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
         [HttpGet]

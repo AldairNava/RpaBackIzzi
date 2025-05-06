@@ -427,6 +427,7 @@ namespace WebApplication1.Controllers
             try
             {
                 var Date = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                //var Date = DateTime.Now.AddDays(-1).Date.ToString("yyyy-MM-dd");
                 var datos = _context.Retencion.FromSqlRaw($" select * from Retencion where CONVERT(date,FechaCaptura) between '{Date}' and '{Date}' order by FechaCaptura desc;").ToList();
                 if (datos.Count() > 0)
                 {

@@ -34,8 +34,8 @@ namespace WebApplication1.Controllers
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
 
-            // Lista para almacenar las cuentas duplicadas
-            List<string> cuentasDuplicadas = new List<string>();
+            // Lista para almacenar los números de orden duplicados
+            List<string> numerosOrdenDuplicados = new List<string>();
 
             try
             {
@@ -43,18 +43,18 @@ namespace WebApplication1.Controllers
                 foreach (var item in Info)
                 {
                     var data = (JsonObject)item;
-                    string cuenta = data["Cuenta"]?.ToString() ?? "";
+                    string numeroOrden = data["numeroOrden"]?.ToString() ?? "";
 
-                    // Verifica si existe un registro con la misma cuenta y fecha (ajustando la zona horaria)
-                    string checkSql = "SELECT COUNT(*) FROM okcliente WHERE Cuenta = @Cuenta AND CONVERT(date, FechaCaptura) = CONVERT(date, DATEADD(hour, -6, GETDATE()))";
+                    // Verifica si existe un registro con el mismo numeroOrden y fecha (ajustando la zona horaria)
+                    string checkSql = "SELECT COUNT(*) FROM okcliente WHERE numeroOrden = @numeroOrden AND CONVERT(date, FechaCaptura) = CONVERT(date, DATEADD(hour, -6, GETDATE()))";
                     SqlCommand checkCmd = new SqlCommand(checkSql, conn);
-                    checkCmd.Parameters.AddWithValue("@Cuenta", cuenta);
+                    checkCmd.Parameters.AddWithValue("@numeroOrden", numeroOrden);
                     int registroExistente = (int)checkCmd.ExecuteScalar();
 
                     if (registroExistente > 0)
                     {
-                        // Si ya existe, se añade el número de cuenta a la lista de duplicados
-                        cuentasDuplicadas.Add(cuenta);
+                        // Si ya existe, se añade el número de orden a la lista de duplicados
+                        numerosOrdenDuplicados.Add(numeroOrden);
                     }
                     else
                     {
@@ -66,8 +66,8 @@ namespace WebApplication1.Controllers
                         cmd.Parameters.AddWithValue("@Status", data["Status"]?.ToString() ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Cve_usuario", data["Cve_usuario"]?.ToString() ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Ip", data["Ip"]?.ToString() ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@Cuenta", cuenta);
-                        cmd.Parameters.AddWithValue("@numeroOrden", data["numeroOrden"]?.ToString() ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Cuenta", data["Cuenta"]?.ToString() ?? (object)DBNull.Value); // Asegúrate de no cambiar esta columna si necesitas mantenerla
+                        cmd.Parameters.AddWithValue("@numeroOrden", numeroOrden);
                         cmd.Parameters.AddWithValue("@Hub", data["Hub"]?.ToString() ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@TipoOferta", data["TipoOferta"]?.ToString() ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@FechaEncuesta", data["FechaEncuesta"]?.ToString() ?? (object)DBNull.Value);
@@ -82,8 +82,8 @@ namespace WebApplication1.Controllers
                 return Ok(new
                 {
                     message = "Registros procesados",
-                    hayDuplicados = cuentasDuplicadas.Count > 0,
-                    cuentasDuplicadas = cuentasDuplicadas
+                    hayDuplicados = numerosOrdenDuplicados.Count > 0,
+                    numerosOrdenDuplicados = numerosOrdenDuplicados
                 });
             }
             catch (Exception ex)
@@ -92,6 +92,7 @@ namespace WebApplication1.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
 
 
 
@@ -252,9 +253,10 @@ namespace WebApplication1.Controllers
                     string encuesta = data["Encuesta"]?.ToString() ?? "";
                     if (encuesta.Trim().ToLower() == "si" || encuesta.Trim() == "1")
                     {
-                        string checkSql = "SELECT COUNT(*) FROM okcliente WHERE Cuenta = @Cuenta AND CONVERT(date, FechaCaptura) = CONVERT(date, DATEADD(hour, -6, GETDATE()))";
+                        // Cambié la consulta para que busque por numeroOrden en vez de Cuenta
+                        string checkSql = "SELECT COUNT(*) FROM okcliente WHERE numeroOrden = @numeroOrden AND CONVERT(date, FechaCaptura) = CONVERT(date, DATEADD(hour, -6, GETDATE()))";
                         SqlCommand checkCmd = new SqlCommand(checkSql, conn);
-                        checkCmd.Parameters.AddWithValue("@Cuenta", data["Cuenta"]?.ToString() ?? (object)DBNull.Value);
+                        checkCmd.Parameters.AddWithValue("@numeroOrden", data["numeroOrden"]?.ToString() ?? (object)DBNull.Value);
                         int registroExistente = (int)checkCmd.ExecuteScalar();
 
                         if (registroExistente == 0)
@@ -266,7 +268,7 @@ namespace WebApplication1.Controllers
                             cmd.Parameters.AddWithValue("@Status", data["Status"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Cve_usuario", data["Cve_usuario"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Ip", data["Ip"]?.ToString() ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@Cuenta", data["Cuenta"]?.ToString() ?? (object)DBNull.Value);
+                            cmd.Parameters.AddWithValue("@Cuenta", data["Cuenta"]?.ToString() ?? (object)DBNull.Value); // Asegúrate de no cambiar esta columna si necesitas mantenerla
                             cmd.Parameters.AddWithValue("@numeroOrden", data["numeroOrden"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Hub", data["Hub"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@TipoOferta", data["TipoOferta"]?.ToString() ?? (object)DBNull.Value);
@@ -286,6 +288,7 @@ namespace WebApplication1.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
 
     }
 }

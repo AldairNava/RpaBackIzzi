@@ -76,29 +76,26 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // Extraer los valores del JSON
                 string controlador = jsonData.GetProperty("controlador").GetString();
                 string metodo = jsonData.GetProperty("metodo").GetString();
 
-                // Contruir URL dinámica con datos del JSON, apuntará hacia el controlador y método que se necesita
-                string url = $"http://192.168.51.210/api/{controlador}/{metodo}";
+                //string url = $"http://192.168.51.210/api/{controlador}/{metodo}";
+                string url = $"http://192.168.51.210:1023/{controlador}/{metodo}";
 
-                // Crear el contenido de la petición con el JSON original
                 StringContent content = new StringContent(jsonData.ToString(), System.Text.Encoding.UTF8, "application/json");
 
-                // Aquí se hace la petición post
                 using (HttpClient httpClient = new HttpClient())
                 {
+                    httpClient.Timeout = TimeSpan.FromSeconds(350);
+
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                     HttpResponseMessage response = await httpClient.PostAsync(url, content);
 
                     if (response.IsSuccessStatusCode)
                     {
-                        // Responder solo el JSON de la respuesta que devuelve PHP
                         string responseBody = await response.Content.ReadAsStringAsync();
 
-                        // Validar si es JSON antes de devolverlo, si no, se trata de un error de PHP
                         if (response.Content.Headers.ContentType.MediaType == "application/json")
                         {
                             return Content(responseBody, "application/json");
@@ -119,6 +116,7 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Error procesando el JSON: " + ex.Message);
             }
         }
+
 
 
 

@@ -67,6 +67,7 @@ namespace WebApplication1
         public DbSet<DepuracionNotdonefinal> DepuracionNotdoneFinal { get; set; }
         public DbSet<DepuracionNotDoneOriginal> DepuracionNotDoneOriginal { get; set; }
         public DbSet<ArchivosNotdone> ArchivosNotdone { get; set; }
+        public DbSet<ValidacionNotDone> ValidacionNotDone { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

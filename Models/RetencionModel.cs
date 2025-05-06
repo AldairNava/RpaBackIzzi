@@ -15,5 +15,11 @@
         public string? Equipo { get; set; }
         public string? MontoAjustado { get; set; }
         public string? AjustePrevio { get; set; }
+        public string? EstatusOS { get; set; }
+    }
+    public class ValidacionNotDone
+    {
+        public int Id { get; set; }
+        public string? status { get; set; }
     }
 }
