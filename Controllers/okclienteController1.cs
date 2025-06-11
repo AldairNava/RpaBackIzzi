@@ -250,8 +250,13 @@ namespace WebApplication1.Controllers
                 {
                     var data = (JsonObject)item;
 
-                    string encuesta = data["Encuesta"]?.ToString() ?? "";
-                    if (encuesta.Trim().ToLower() == "si" || encuesta.Trim() == "1")
+                    // 1) Obtenemos y normalizamos el valor de Encuesta
+                    string encuestaRaw = data["Encuesta"]?.ToString() ?? "";
+                    string encuestaTrim = encuestaRaw.Trim();
+                    string encuestaLower = encuestaTrim.ToLowerInvariant();
+
+                    // 2) Comprobamos "si", "sí" o "1"
+                    if (encuestaLower == "si" || encuestaLower == "sí" || encuestaTrim == "1")
                     {
                         // Cambié la consulta para que busque por numeroOrden en vez de Cuenta
                         string checkSql = "SELECT COUNT(*) FROM okcliente WHERE numeroOrden = @numeroOrden AND CONVERT(date, FechaCaptura) = CONVERT(date, DATEADD(hour, -6, GETDATE()))";
@@ -261,14 +266,17 @@ namespace WebApplication1.Controllers
 
                         if (registroExistente == 0)
                         {
-                            string sql = "INSERT INTO okcliente (FechaCaptura, Status, Cve_usuario, Ip, Cuenta, numeroOrden, Hub, TipoOferta, FechaEncuesta, Nombre, Telefono) " +
-                                         "VALUES (@FechaCaptura, @Status, @Cve_usuario, @Ip, @Cuenta, @numeroOrden, @Hub, @TipoOferta, @FechaEncuesta, @Nombre, @Telefono)";
+                            string sql = @"
+                        INSERT INTO okcliente 
+                            (FechaCaptura, Status, Cve_usuario, Ip, Cuenta, numeroOrden, Hub, TipoOferta, FechaEncuesta, Nombre, Telefono) 
+                        VALUES 
+                            (@FechaCaptura, @Status, @Cve_usuario, @Ip, @Cuenta, @numeroOrden, @Hub, @TipoOferta, @FechaEncuesta, @Nombre, @Telefono)";
                             SqlCommand cmd = new SqlCommand(sql, conn);
                             cmd.Parameters.AddWithValue("@FechaCaptura", data["FechaCaptura"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Status", data["Status"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Cve_usuario", data["Cve_usuario"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Ip", data["Ip"]?.ToString() ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@Cuenta", data["Cuenta"]?.ToString() ?? (object)DBNull.Value); // Asegúrate de no cambiar esta columna si necesitas mantenerla
+                            cmd.Parameters.AddWithValue("@Cuenta", data["Cuenta"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@numeroOrden", data["numeroOrden"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Hub", data["Hub"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@TipoOferta", data["TipoOferta"]?.ToString() ?? (object)DBNull.Value);
@@ -288,6 +296,7 @@ namespace WebApplication1.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
 
 
     }

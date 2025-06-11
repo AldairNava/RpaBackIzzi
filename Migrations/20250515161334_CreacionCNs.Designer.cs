@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1;
 
@@ -11,9 +12,11 @@ using WebApplication1;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515161334_CreacionCNs")]
+    partial class CreacionCNs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,53 +24,6 @@ namespace WebApplication1.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("WebApplication1.Models.AgenteDepuracion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CNGenrado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaCaptura")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaCompletado")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Telefono")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoCN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("cuenta")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("orden")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AgenteDepuracion");
-                });
 
             modelBuilder.Entity("WebApplication1.Models.AjustesCambiosServiciosModel", b =>
                 {
@@ -154,16 +110,10 @@ namespace WebApplication1.Migrations
                     b.Property<string>("Cve_usuario")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("FechaCambio")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("FechaCaptura")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("FechaCompletado")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaReproceso")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IP")
@@ -173,15 +123,6 @@ namespace WebApplication1.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubStatus")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UsuarioCambio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UsuarioReproceso")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("cantidadAjustar")
@@ -1790,56 +1731,6 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("HorariosReporte");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.LogCambioStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("FechaCambio")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Proceso")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("id_Cambiado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LogCambioStatus");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.LogReprocesos", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("FechaReproceso")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Proceso")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("id_Reprocesado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LogReprocesos");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.MigracionesLinealesModel", b =>

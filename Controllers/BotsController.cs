@@ -300,40 +300,79 @@ namespace WebApplication1.Controllers
 
         }
 
-      [HttpGet]
-[Route("getProcessLimpieza")]
-public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> getProcessLimpieza(string ip)
-{
-    try
-    {
-        var query = from proceso in _context.cat_procesosLimpieza
-                    select new
-                    {
-                        ProcesoName = proceso.Name_process,
-                        ProcesoUser = proceso.usuario,
-                        ProcesoPassword = proceso.password,
-                        Procesonombreuser = proceso.Name_usuario
-                    };
 
-        var datos = await query.ToListAsync();
-        if (datos != null && datos.Count > 0)
+        [HttpGet]
+        [Route("getProcessRetencion")]
+        public async Task<ActionResult<IEnumerable<catalogoProcesosBotsRetencionaModel>>> getProcessRetencion(string ip)
         {
-            return Ok(datos);
-        }
-        else
-        {
-            var d = new List<string>()
+            try
             {
-                "SIN INFO"
-            };
-            return Ok(d);
+                var query = from bot in _context.BotsProcessRetencion
+                            join proceso in _context.cat_procesosRetencion on bot.ProcesoBotId equals proceso.Id
+                            where bot.ip == ip
+                            select new
+                            {
+                                ProcesoName = proceso.Name_process,
+                                ProcesoUser = proceso.usuario,
+                                ProcesoPassword = proceso.password,
+                            };
+
+                var datos = await query.FirstOrDefaultAsync();
+                if (datos != null)
+                {
+                    return Ok(datos);
+
+                }
+                else
+                {
+                    var d = new List<string>()
+                    {
+                        "SIN INFO"
+                    };
+                    return Ok(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
-    }
-    catch (Exception ex)
-    {
-        return BadRequest(ex.Message);
-    }
-}
+
+        [HttpGet]
+        [Route("getProcessLimpieza")]
+        public async Task<ActionResult<IEnumerable<catalogoProcesosBotsLimpiezaModel>>> getProcessLimpieza(string ip)
+        {
+            try
+            {
+                var query = from proceso in _context.cat_procesosLimpieza
+                            select new
+                            {
+                                ProcesoName = proceso.Name_process,
+                                ProcesoUser = proceso.usuario,
+                                ProcesoPassword = proceso.password,
+                                Procesonombreuser = proceso.Name_usuario
+                            };
+
+                var datos = await query.ToListAsync();
+                if (datos != null && datos.Count > 0)
+                {
+                    return Ok(datos);
+                }
+                else
+                {
+                    var d = new List<string>()
+                    {
+                        "SIN INFO"
+                    };
+                    return Ok(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpGet]
         [Route("getUsrbots")]

@@ -18,6 +18,7 @@ namespace WebApplication1.Controllers
         public AjustesCambiosServiciosController(ApplicationDbContext context)
         {
             _context = context;
+            _httpClient = new HttpClient();
         }
 
         [Route("InsertarBaseDatosAjustesExcel")]
@@ -138,7 +139,7 @@ namespace WebApplication1.Controllers
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
             conn.Open();
-            string sql = $"SELECT SUM(CASE WHEN Status = 'Pendiente' THEN 1 ELSE 0 END) AS Pendientes,SUM(CASE WHEN Status like '%Error%' THEN 1 ELSE 0 END) AS Error,SUM(CASE WHEN status='Cerrado' or status='Cerrada' THEN 1 ELSE 0 END) AS Completado,SUM(CASE WHEN Status = 'Procesando' THEN 1 ELSE 0 END) AS Procesando,count(*) AS Total FROM AjustesCambioServicios where CONVERT(date,FechaCarga) between '{Date}' and '{Date}';";
+            string sql = $"SELECT SUM(CASE WHEN Status = 'Pendiente' THEN 1 ELSE 0 END) AS Pendientes,SUM(CASE WHEN Status NOT IN ('Pendiente','Procesando','Cerrado')THEN 1 ELSE 0 END) AS Error,SUM(CASE WHEN status='Cerrado' or status='Cerrada' THEN 1 ELSE 0 END) AS Completado,SUM(CASE WHEN Status = 'Procesando' THEN 1 ELSE 0 END) AS Procesando,count(*) AS Total FROM AjustesCambioServicios where CONVERT(date,FechaCarga) between '{Date}' and '{Date}';";
             SqlCommand cmd = new SqlCommand(sql, conn);
             SqlDataReader reader = cmd.ExecuteReader();
             ArrayList objs = new ArrayList();

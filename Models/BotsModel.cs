@@ -222,6 +222,19 @@ namespace WebApplication1.Models
         public string Otros { get; set; }
     }
 
+    public class AgenteDepuracion
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Telefono { get; set; }
+        public string cuenta { get; set; }
+        public string orden { get; set; }
+        public string TipoCN { get; set; }
+        public string CNGenrado { get; set; }
+        public string status { get; set; }
+        public DateTime? FechaCaptura { get; set; }
+        public DateTime? FechaCompletado { get; set; }
 
+    }
 
 }

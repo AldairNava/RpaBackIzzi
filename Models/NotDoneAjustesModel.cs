@@ -98,7 +98,6 @@
             public string? tipoAplicacion { get; set; }
             public string? numeroAjuste { get; set; }
             public string? casoNegocio { get; set; }
-
             public string? Cve_usuario { get; set; }
             public DateTime? FechaCompletado { get; set; }
             public DateTime? FechaCaptura { get; set; }
@@ -106,7 +105,29 @@
             public string? Procesando { get; set; }
             public string? IP { get; set; }
             public string? estatusAjuste { get; set; }
-        }
+            public string? SubStatus { get; set; }
+            public string? UsuarioReproceso { get; set; }
+            public DateTime? FechaReproceso { get; set; }
+            public string? UsuarioCambio { get; set; }
+            public DateTime? FechaCambio { get; set; }
+    }
+
+    public class LogReprocesos
+    {
+        public int Id { get; set; }
+        public string? id_Reprocesado { get; set; }
+        public string? usuario { get; set; }
+        public DateTime? FechaReproceso { get; set; }
+        public string? Proceso { get; set; }
+    }
+    public class LogCambioStatus
+    {
+        public int Id { get; set; }
+        public string? id_Cambiado { get; set; }
+        public string? usuario { get; set; }
+        public DateTime? FechaCambio { get; set; }
+        public string? Proceso { get; set; }
+    }
 
     public class CancelacionSinValidacionModel
         {

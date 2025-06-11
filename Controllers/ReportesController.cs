@@ -2672,5 +2672,172 @@ namespace WebApplication1.Controllers
 
         }
 
+
+        [HttpGet]
+        [Route("ReporteCreacionCNs")]
+        public IActionResult ReporteCreacionCNs(string fecha1, string fecha2)
+        {
+            SLDocument sl = new SLDocument();
+            var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
+            var pathimg2 = $"{this._webHostEnvironment.WebRootPath}\\img\\Logo_Izzi.svg.png";
+            SLStyle estilo1 = sl.CreateStyle();
+            estilo1.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+
+
+            System.Drawing.Bitmap bm = new System.Drawing.Bitmap(pathimg);
+            byte[] ba;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                bm.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                ms.Close();
+                ba = ms.ToArray();
+            }
+            SLPicture pic = new SLPicture(ba, DocumentFormat.OpenXml.Packaging.ImagePartType.Png);
+            pic.SetPosition(1, 1);
+            pic.ResizeInPixels(250, 80);
+            sl.InsertPicture(pic);
+
+            System.Drawing.Bitmap bm1 = new System.Drawing.Bitmap(pathimg2);
+            byte[] ba1;
+            using (System.IO.MemoryStream ms1 = new System.IO.MemoryStream())
+            {
+                bm1.Save(ms1, System.Drawing.Imaging.ImageFormat.Png);
+                ms1.Close();
+                ba1 = ms1.ToArray();
+            }
+            SLPicture pic1 = new SLPicture(ba1, DocumentFormat.OpenXml.Packaging.ImagePartType.Png);
+            pic1.SetPosition(1, 11);
+            pic1.ResizeInPixels(250, 80);
+            sl.InsertPicture(pic1);
+            DateTime f1;
+            DateTime f2;
+
+            DateTime.TryParseExact(fecha1, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f1);
+            string fechaFormateada = f1.ToString("dd-MM-yyyy");
+            DateTime.TryParseExact(fecha2, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f2);
+            string fechaFormateada1 = f2.ToString("dd-MM-yyyy");
+
+            sl.SetCellValue("F4", $"Reporte de Creacion Casos de Negocio");
+            sl.SetCellValue("F5", $"Fecha de Inicio: {fechaFormateada} A Fecha Final: {fechaFormateada1}");
+            sl.SetCellStyle("F5", estilo1);
+
+            SLStyle estilo = sl.CreateStyle();
+            estilo.Font.FontName = "Arial";
+            estilo.Font.FontSize = 12;
+            estilo.Font.Bold = true;
+            string colorHex = "#550675";
+            Color customColor = ColorTranslator.FromHtml(colorHex);
+            estilo.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+            estilo.Font.SetFontThemeColor(SLThemeColorIndexValues.Light1Color);
+
+            estilo.Fill.SetPattern(PatternValues.Solid, customColor, SLThemeColorIndexValues.Accent1Color);
+
+            sl.SetCellStyle("F4", estilo);
+            sl.MergeWorksheetCells("F4", "I4");
+            sl.MergeWorksheetCells("F5", "I5");
+
+            sl.SetColumnWidth(2, 20);
+            sl.SetColumnWidth(3, 20);
+            sl.SetColumnWidth(4, 20);
+            sl.SetColumnWidth(5, 20);
+            sl.SetColumnWidth(6, 30);
+            sl.SetColumnWidth(7, 25);
+            sl.SetColumnWidth(8, 30);
+            sl.SetColumnWidth(9, 25);
+            sl.SetColumnWidth(10, 30);
+            sl.SetColumnWidth(11, 30);
+            sl.SetColumnWidth(12, 25);
+            sl.SetColumnWidth(13, 25);
+            sl.SetColumnWidth(14, 30);
+            sl.SetColumnWidth(15, 40);
+            sl.SetColumnWidth(16, 20);
+            sl.SetColumnWidth(17, 20);
+            sl.SetColumnWidth(18, 20);
+            sl.SetColumnWidth(19, 20);
+            sl.SetColumnWidth(20, 20);
+            sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Creacion Casos de Negocio");
+            sl.SetCellValue("B9", "Cuenta");
+            sl.SetCellValue("C9", "CN Generado");
+            sl.SetCellValue("D9", "Status");
+            sl.SetCellValue("E9", "Categoria");
+            sl.SetCellValue("F9", "Motivo");
+            sl.SetCellValue("G9", "Submotivo");
+            sl.SetCellValue("H9", "Solucion");
+            sl.SetCellValue("I9", "Saldo Incobrable");
+            sl.SetCellValue("J9", "Promocion");
+            sl.SetCellValue("K9", "Ajuste");
+            sl.SetCellValue("L9", "Tipo");
+            sl.SetCellValue("M9", "Fecha Gestion");
+            sl.SetCellValue("N9", "Fecha Subia");
+            sl.SetCellValue("O9", "Fecha Capturado");
+            sl.SetCellValue("P9", "Fecha Completado");
+            sl.SetCellValue("Q9", "Usuario");
+            sl.SetCellValue("R9", "Ip");
+            sl.SetCellStyle("B9", estilo);
+            sl.SetCellStyle("C9", estilo);
+            sl.SetCellStyle("D9", estilo);
+            sl.SetCellStyle("E9", estilo);
+            sl.SetCellStyle("F9", estilo);
+            sl.SetCellStyle("G9", estilo);
+            sl.SetCellStyle("H9", estilo);
+            sl.SetCellStyle("I9", estilo);
+            sl.SetCellStyle("J9", estilo);
+            sl.SetCellStyle("K9", estilo);
+            sl.SetCellStyle("L9", estilo);
+            sl.SetCellStyle("M9", estilo);
+            sl.SetCellStyle("N9", estilo);
+            sl.SetCellStyle("O9", estilo);
+            sl.SetCellStyle("P9", estilo);
+            sl.SetCellStyle("Q9", estilo);
+            sl.SetCellStyle("R9", estilo);
+            SLPageSettings sp = new SLPageSettings
+            {
+                ShowGridLines = false
+            };
+            sl.SetPageSettings(sp);
+
+            int celda = 9;
+            string sql = $"select Tipo,FechaGestion,Ajuste,Promocion,SaldoIncobrable,Solucion,SubMotivo,Mootivo,Categoria,FechaSubida,Cuenta,Ip,Cve_usuario,Status,FechaCompletado,FechaCaptura,CnGenerado from CreacionCNs where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            SqlConnection conn = new SqlConnection();
+            conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            cmd.CommandTimeout = 120;
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                celda++;
+                sl.SetCellValue("B" + celda, reader["Cuenta"].ToString());
+                sl.SetCellValue("C" + celda, reader["CnGenerado"].ToString());
+                sl.SetCellValue("D" + celda, reader["Status"].ToString());
+                sl.SetCellValue("E" + celda, reader["Categoria"].ToString());
+                sl.SetCellValue("F" + celda, reader["Mootivo"].ToString());
+                sl.SetCellValue("G" + celda, reader["SubMotivo"].ToString());
+                sl.SetCellValue("H" + celda, reader["Solucion"].ToString());
+                sl.SetCellValue("I" + celda, reader["SaldoIncobrable"].ToString());
+                sl.SetCellValue("J" + celda, reader["Promocion"].ToString());
+                sl.SetCellValue("k" + celda, reader["Ajuste"].ToString());
+                sl.SetCellValue("L" + celda, reader["Tipo"].ToString());
+                sl.SetCellValue("M" + celda, reader["FechaGestion"].ToString());
+                sl.SetCellValue("N" + celda, reader["FechaSubida"].ToString());
+                sl.SetCellValue("N" + celda, reader["FechaCaptura"].ToString());
+                sl.SetCellValue("N" + celda, reader["FechaCompletado"].ToString());
+                sl.SetCellValue("N" + celda, reader["Cve_usuario"].ToString());
+                sl.SetCellValue("N" + celda, reader["Ip"].ToString());
+            }
+
+            sl.SelectWorksheet("Detalles");
+
+
+            MemoryStream stream = new MemoryStream();
+            sl.SaveAs(stream);
+            stream.Position = 0;
+            return File(stream, "application/zip", "Reporte-Creacion-CNs.xlsx");
+
+
+        }
+
     }
 }

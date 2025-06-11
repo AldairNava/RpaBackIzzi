@@ -148,70 +148,76 @@ namespace WebApplication1.Controllers
             }
         }
 
-
-
-        [Route("InsertarBasesDepuracionNotDoneOriginal")]
         [HttpPost]
+        [Route("InsertarBasesDepuracionNotDoneOriginal")]
         public IActionResult InsertarBasesDepuracionNotDoneOriginal([FromBody] JsonArray Info)
         {
-            SqlConnection conn = new SqlConnection();
-            conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
+            var connectionString = "Server=tcp:rpawinserver.database.windows.net,1433;" +
+                                   "Initial Catalog=WinDBRPA;Persist Security Info=False;" +
+                                   "User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;" +
+                                   "Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
 
-            try
+            using (var conn = new SqlConnection(connectionString))
             {
-                conn.Open();
-
-                foreach (var item in Info)
+                try
                 {
-                    var data = (JsonObject)item;
+                    conn.Open();
 
-                    // Se obtiene la cadena de la fecha recibida en formato ISO 8601.
-                    string fechaSolicitadaStr = data["FechaSolicitada"]?.ToString();
-
-                    // Si no contiene "T", se asume que solo trae la fecha (yyyy-MM-dd)
-                    // y se le agrega la hora actual.
-                    if (!string.IsNullOrEmpty(fechaSolicitadaStr) && !fechaSolicitadaStr.Contains("T"))
+                    foreach (var item in Info)
                     {
-                        fechaSolicitadaStr += "T" + DateTime.Now.ToString("HH:mm:ss");
-                    }
+                        var data = (JsonObject)item;
 
-                    DateTime fechaSolicitada;
-                    // Se usa TryParse con DateTimeStyles.RoundtripKind para trabajar con el formato ISO 8601.
-                    if (DateTime.TryParse(fechaSolicitadaStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out fechaSolicitada))
-                    {
-                        // Se inserta el registro sin aplicar la restricción de los 7 días.
-                        string sql = @"
-                    INSERT INTO DepuracionNotDoneOriginal 
-                    (
-                        CanalDeIngreso, EstadoAdmision, FechaAdmision, TipoDeCuenta, NoTelefonoPrincipal, 
-                        Telefonos, TipoEMTA, CtaEspecial, Hub, MotivoDeLaOrden, OrdenDePortabilidad, 
-                        Referido, MotivoDeLaCancelacion, Sistema, SubEstado, NoVTS, ClaveVendedor, 
-                        MensualidadTotal, TotalDeCNR, DocumentoDePrueba, EstadoEnFecha, CodigoDeTipoDeOrden, 
-                        Revision, CuentaDeFacturacion, TransferidoAlLibroDeTrabajoDeTransacciones, Equipo, 
-                        FechaDeLaOrden, Activo, AplicaTablet, ConfirmacionDeInstalacion, NumeroDeOrden, 
-                        ClaveDelTecnicoPrincipal, Tipo, EstadoDeAsignacionDeCredito, NoProgramaciones, Estado, 
-                        Compania, Centro, ListaDeImpuestos, Direccion, Apellidos, Nombre, Prioridad, 
-                        NumeroDeCuenta, Aprobado, AprobadoPor, Moneda, ListaDePrecios, PorcentajeDeDescuento, 
-                        CompletadaPor, MotivoDeReprogramacion, EnviadaPor, UltimaModificacionPor, UltimaModificacion, 
-                        Comentarios, CreadoPor, Creado, FechaSolicitada
-                    )
-                    VALUES 
-                    (
-                        @CanalDeIngreso, @EstadoAdmision, @FechaAdmision, @TipoDeCuenta, @NoTelefonoPrincipal, 
-                        @Telefonos, @TipoEMTA, @CtaEspecial, @Hub, @MotivoDeLaOrden, @OrdenDePortabilidad, 
-                        @Referido, @MotivoDeLaCancelacion, @Sistema, @SubEstado, @NoVTS, @ClaveVendedor, 
-                        @MensualidadTotal, @TotalDeCNR, @DocumentoDePrueba, @EstadoEnFecha, @CodigoDeTipoDeOrden, 
-                        @Revision, @CuentaDeFacturacion, @TransferidoAlLibroDeTrabajoDeTransacciones, @Equipo, 
-                        @FechaDeLaOrden, @Activo, @AplicaTablet, @ConfirmacionDeInstalacion, @NumeroDeOrden, 
-                        @ClaveDelTecnicoPrincipal, @Tipo, @EstadoDeAsignacionDeCredito, @NoProgramaciones, @Estado, 
-                        @Compania, @Centro, @ListaDeImpuestos, @Direccion, @Apellidos, @Nombre, @Prioridad, 
-                        @NumeroDeCuenta, @Aprobado, @AprobadoPor, @Moneda, @ListaDePrecios, @PorcentajeDeDescuento, 
-                        @CompletadaPor, @MotivoDeReprogramacion, @EnviadaPor, @UltimaModificacionPor, @UltimaModificacion, 
-                        @Comentarios, @CreadoPor, @Creado, @FechaSolicitada
-                    )";
-
-                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                        // Parsear FechaSolicitada
+                        string fs = data["FechaSolicitada"]?.ToString() ?? "";
+                        if (!DateTime.TryParseExact(fs, new[] { "dd/MM/yyyy HH:mm:ss", "dd/MM/yyyy" },
+                                CultureInfo.InvariantCulture, DateTimeStyles.None, out var fechaSolicitada))
                         {
+                            return BadRequest($"FechaSolicitada inválida: '{fs}'");
+                        }
+
+                        // Parsear Creado
+                        string cs = data["Creado"]?.ToString() ?? "";
+                        if (!DateTime.TryParseExact(cs, new[] { "dd/MM/yyyy HH:mm:ss", "dd/MM/yyyy" },
+                                CultureInfo.InvariantCulture, DateTimeStyles.None, out var creadoDate)
+                            && !DateTime.TryParseExact(cs, "dd/MM/yyyy",
+                                CultureInfo.InvariantCulture, DateTimeStyles.None, out creadoDate))
+                        {
+                            return BadRequest($"Creado inválido: '{cs}'");
+                        }
+
+                        var sql = @"
+                                    INSERT INTO DepuracionNotDoneOriginal
+                                    (
+                                        CanalDeIngreso, EstadoAdmision, FechaAdmision, TipoDeCuenta, NoTelefonoPrincipal,
+                                        Telefonos, TipoEMTA, CtaEspecial, Hub, MotivoDeLaOrden, OrdenDePortabilidad,
+                                        Referido, MotivoDeLaCancelacion, Sistema, SubEstado, NoVTS, ClaveVendedor,
+                                        MensualidadTotal, TotalDeCNR, DocumentoDePrueba, EstadoEnFecha, CodigoDeTipoDeOrden,
+                                        Revision, CuentaDeFacturacion, TransferidoAlLibroDeTrabajoDeTransacciones, Equipo,
+                                        FechaDeLaOrden, Activo, AplicaTablet, ConfirmacionDeInstalacion, NumeroDeOrden,
+                                        ClaveDelTecnicoPrincipal, Tipo, EstadoDeAsignacionDeCredito, NoProgramaciones, Estado,
+                                        Compania, Centro, ListaDeImpuestos, Direccion, Apellidos, Nombre, Prioridad,
+                                        NumeroDeCuenta, Aprobado, AprobadoPor, Moneda, ListaDePrecios, PorcentajeDeDescuento,
+                                        CompletadaPor, MotivoDeReprogramacion, EnviadaPor, UltimaModificacionPor, UltimaModificacion,
+                                        Comentarios, CreadoPor, Creado, FechaSolicitada
+                                    )
+                                    VALUES
+                                    (
+                                        @CanalDeIngreso, @EstadoAdmision, @FechaAdmision, @TipoDeCuenta, @NoTelefonoPrincipal,
+                                        @Telefonos, @TipoEMTA, @CtaEspecial, @Hub, @MotivoDeLaOrden, @OrdenDePortabilidad,
+                                        @Referido, @MotivoDeLaCancelacion, @Sistema, @SubEstado, @NoVTS, @ClaveVendedor,
+                                        @MensualidadTotal, @TotalDeCNR, @DocumentoDePrueba, @EstadoEnFecha, @CodigoDeTipoDeOrden,
+                                        @Revision, @CuentaDeFacturacion, @TransferidoAlLibroDeTrabajoDeTransacciones, @Equipo,
+                                        @FechaDeLaOrden, @Activo, @AplicaTablet, @ConfirmacionDeInstalacion, @NumeroDeOrden,
+                                        @ClaveDelTecnicoPrincipal, @Tipo, @EstadoDeAsignacionDeCredito, @NoProgramaciones, @Estado,
+                                        @Compania, @Centro, @ListaDeImpuestos, @Direccion, @Apellidos, @Nombre, @Prioridad,
+                                        @NumeroDeCuenta, @Aprobado, @AprobadoPor, @Moneda, @ListaDePrecios, @PorcentajeDeDescuento,
+                                        @CompletadaPor, @MotivoDeReprogramacion, @EnviadaPor, @UltimaModificacionPor, @UltimaModificacion,
+                                        @Comentarios, @CreadoPor, @Creado, @FechaSolicitada
+                                    )";
+
+                        using (var cmd = new SqlCommand(sql, conn))
+                        {
+                            // Parámetros de texto
                             cmd.Parameters.AddWithValue("@CanalDeIngreso", data["CanalDeIngreso"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@EstadoAdmision", data["EstadoAdmision"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@FechaAdmision", data["FechaAdmision"]?.ToString() ?? (object)DBNull.Value);
@@ -268,27 +274,23 @@ namespace WebApplication1.Controllers
                             cmd.Parameters.AddWithValue("@UltimaModificacion", data["UltimaModificacion"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@Comentarios", data["Comentarios"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@CreadoPor", data["CreadoPor"]?.ToString() ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@Creado", data["Creado"]?.ToString() ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@FechaSolicitada", fechaSolicitada);
+
+                            // Parámetros DateTime
+                            cmd.Parameters.Add("@Creado", SqlDbType.DateTime).Value = creadoDate;
+                            cmd.Parameters.Add("@FechaSolicitada", SqlDbType.DateTime).Value = fechaSolicitada;
 
                             cmd.ExecuteNonQuery();
                         }
                     }
-                }
 
-                conn.Close();
-                return Ok(new { message = "Registros insertados correctamente" });
-            }
-            catch (Exception ex)
-            {
-                conn.Close();
-                return BadRequest(ex.Message);
+                    return Ok(new { message = "Registros insertados correctamente" });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
         }
-
-
-
-
 
         [HttpPost]
         [Route("InsertarBaseNotDone")]
@@ -394,24 +396,56 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // Obtener los datos de la tabla
                 var datos = await _context.DepuracionNotdoneFinal
-                                         .FromSqlRaw("SELECT * FROM DepuracionNotdoneFinal;")
-                                         .ToListAsync();
+                    .Select(x => new {
+                        x.Id,
+                        x.CUENTA,
+                        x.NOMBRE_CLIENTE,
+                        x.TIPO_CLIENTE,
+                        x.SUBTIPO_CLIENTE,
+                        x.DIRECCION,
+                        x.TIPO_ORDEN,
+                        x.SUBTIPO_ORDEN,
+                        x.PAQUETE,
+                        x.NUMERO_ORDEN,
+                        x.ESTADO_ORDEN,
+                        FECHA_APERTURA = x.FECHA_APERTURA.HasValue
+                                             ? x.FECHA_APERTURA.Value.ToString("yyyy-MM-dd")
+                                             : null,
+                        FECHA_SOLICITADA = x.FECHA_SOLICITADA.HasValue
+                                             ? x.FECHA_SOLICITADA.Value.ToString("yyyy-MM-dd")
+                                             : null,
+                        x.MOTIVO_ORDEN,
+                        x.HUB,
+                        x.RPT,
+                        x.CIUDAD,
+                        x.PLAZA,
+                        x.VENDEDOR,
+                        x.TECNICO,
+                        x.CREADO_POR,
+                        x.ULTIMA_MOD_POR,
+                        x.REFERIDO,
+                        x.NUM_REPRO,
+                        x.MOTIVO_REPROGRAMACION,
+                        x.MOTIVO_CANCELACION,
+                        x.SITUACION_ANTICIPO,
+                        x.PERFIL_PAGO,
+                        x.COMENTARIOS,
+                        x.TEL1,
+                        x.TEL2,
+                        x.TEL3,
+                        x.TEL4
+                    })
+                    .ToListAsync();
 
-                // Ejecutar el TRUNCATE para vaciar la tabla
+                // Vaciamos la tabla
                 await _context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE DepuracionNotdoneFinal");
 
-                // Retornar los datos obtenidos
-                if (datos.Count > 0)
-                {
+                // Retornamos los datos o “SIN INFO”
+                if (datos.Any())
                     return Ok(datos);
-                }
                 else
-                {
-                    var d = new List<string> { "SIN INFO" };
-                    return Ok(d);
-                }
+                    return Ok(new List<string> { "SIN INFO" });
             }
             catch (Exception ex)
             {
