@@ -1674,7 +1674,7 @@ namespace WebApplication1.Controllers
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.ExecuteNonQuery();
                 conn.Close();
-                return Ok();
+                return Ok("Reprocesamiento exitoso");
             }
             catch (Exception ex)
             {

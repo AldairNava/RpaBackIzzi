@@ -78,6 +78,7 @@ namespace WebApplication1.Controllers
                                      "@SITUACION_ANTICIPO, @PERFIL_PAGO, @COMENTARIOS, @TEL1, @TEL2, @TEL3, @TEL4)";
 
                         SqlCommand cmd = new SqlCommand(sql, conn);
+                        cmd.CommandTimeout = 300;
                         cmd.Parameters.AddWithValue("@CUENTA", data["CUENTA"]?.ToString() ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@NOMBRE_CLIENTE", data["NOMBRE_CLIENTE"]?.ToString() ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@TIPO_CLIENTE", data["TIPO_CLIENTE"]?.ToString() ?? (object)DBNull.Value);
@@ -217,6 +218,7 @@ namespace WebApplication1.Controllers
 
                         using (var cmd = new SqlCommand(sql, conn))
                         {
+                            cmd.CommandTimeout = 300;
                             // Parámetros de texto
                             cmd.Parameters.AddWithValue("@CanalDeIngreso", data["CanalDeIngreso"]?.ToString() ?? (object)DBNull.Value);
                             cmd.Parameters.AddWithValue("@EstadoAdmision", data["EstadoAdmision"]?.ToString() ?? (object)DBNull.Value);
@@ -496,6 +498,60 @@ namespace WebApplication1.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("InsertarDepuracionEXTAGENT")]
+        public IActionResult InsertarDepuracionEXTAGENT([FromBody] JsonObject data)
+        {
+            var connectionString =
+                "Server=tcp:rpawinserver.database.windows.net,1433;" +
+                "Initial Catalog=WinDBRPA;Persist Security Info=False;" +
+                "User ID=RpaWinDB;Password=Ruka0763feTrfg;" +
+                "MultipleActiveResultSets=False;Encrypt=True;" +
+                "TrustServerCertificate=False;Connection Timeout=120;";
+            const string sql = @"
+            INSERT INTO DepuracionBasesCanceladasOsExt
+            (
+                lead_id, Cuenta, Compania, NumOrden, Tipo, MotivoOrden, Source, time_carga, Status, usuario_creo, User_registro, Procesando
+            )
+            VALUES
+            (@lead_id,@Cuenta, @Compania, @NumOrden, @Tipo, @MotivoOrden, @Source, @time_carga, @Status, @usuario_creo, @User_registro, @Procesando
+            );";
+
+            try
+            {
+                using var conn = new SqlConnection(connectionString);
+                using var cmd = new SqlCommand(sql, conn);
+
+                // Parametro lead_id (entero)
+                if (data["lead_id"] is not null)
+                    cmd.Parameters.AddWithValue("@lead_id",
+                        Convert.ToInt32(data["lead_id"].ToString()));
+                else
+                    cmd.Parameters.AddWithValue("@lead_id", DBNull.Value);
+
+                // Parámetros string opcionales
+                cmd.Parameters.AddWithValue("@Cuenta", data["Cuenta"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Compania", data["Compania"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@NumOrden", data["NumOrden"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Tipo", data["Tipo"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotivoOrden", data["MotivoOrden"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Source", data["Source"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@time_carga", data["time_carga"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Status", data["Status"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@usuario_creo", data["usuario_creo"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@User_registro", data["User_registro"]?.ToString() ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Procesando", data["Procesando"]?.ToString() ?? (object)DBNull.Value);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                return Ok(new { message = "Registro insertado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
         }
 

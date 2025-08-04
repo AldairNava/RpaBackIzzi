@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace WebApplication1.Models
+﻿namespace WebApplication1.Models
 {
+    public class Tablas
+    {
+        public int Id { get; set; }
+        public string? Proceso { get; set; }
+
+    }
     public class BotsModel
     {
         public int Id { get; set; }

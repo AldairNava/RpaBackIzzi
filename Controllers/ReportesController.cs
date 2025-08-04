@@ -2387,7 +2387,6 @@ namespace WebApplication1.Controllers
             SLStyle estilo1 = sl.CreateStyle();
             estilo1.Alignment.Horizontal = HorizontalAlignmentValues.Center;
 
-
             System.Drawing.Bitmap bm = new System.Drawing.Bitmap(pathimg);
             byte[] ba;
             using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
@@ -2413,9 +2412,9 @@ namespace WebApplication1.Controllers
             pic1.SetPosition(1, 8);
             pic1.ResizeInPixels(250, 80);
             sl.InsertPicture(pic1);
+
             DateTime f1;
             DateTime f2;
-
             DateTime.TryParseExact(fecha1, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f1);
             string fechaFormateada = f1.ToString("dd-MM-yyyy");
             DateTime.TryParseExact(fecha2, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out f2);
@@ -2433,7 +2432,6 @@ namespace WebApplication1.Controllers
             Color customColor = ColorTranslator.FromHtml(colorHex);
             estilo.Alignment.Horizontal = HorizontalAlignmentValues.Center;
             estilo.Font.SetFontThemeColor(SLThemeColorIndexValues.Light1Color);
-
             estilo.Fill.SetPattern(PatternValues.Solid, customColor, SLThemeColorIndexValues.Accent1Color);
 
             sl.SetCellStyle("D4", estilo);
@@ -2459,16 +2457,24 @@ namespace WebApplication1.Controllers
             sl.SetColumnWidth(18, 20);
             sl.SetColumnWidth(19, 20);
             sl.SetColumnWidth(20, 20);
+
             sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Ok-Cliente");
-            sl.SetCellValue("B9", "Cuenta");
-            sl.SetCellValue("C9", "Numero de Orden");
-            sl.SetCellValue("D9", "Status");
-            sl.SetCellValue("E9", "CN Generado");
-            sl.SetCellValue("F9", "Fecha Capturado");
-            sl.SetCellValue("G9", "Fecha Completado");
-            sl.SetCellValue("H9", "Usuario");
-            sl.SetCellValue("I9", "Ip");
-            sl.SetCellValue("J9", "Id");
+            sl.SetCellValue("B9", "Id");
+            sl.SetCellValue("C9", "Cuenta");
+            sl.SetCellValue("D9", "Numero de Orden");
+            sl.SetCellValue("E9", "Status");
+            sl.SetCellValue("F9", "OS Generado");
+            sl.SetCellValue("G9", "Telefono");
+            sl.SetCellValue("H9", "Tipo");
+            sl.SetCellValue("I9", "comentario");
+            sl.SetCellValue("J9", "origen");
+            sl.SetCellValue("K9", "encuesta");
+            sl.SetCellValue("L9", "Fecha Capturado");
+            sl.SetCellValue("M9", "Fecha Completado");
+            sl.SetCellValue("N9", "Hub");
+            sl.SetCellValue("O9", "Ip");
+            sl.SetCellValue("P9", "Usuario Captura");
+
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
             sl.SetCellStyle("D9", estilo);
@@ -2477,6 +2483,14 @@ namespace WebApplication1.Controllers
             sl.SetCellStyle("G9", estilo);
             sl.SetCellStyle("H9", estilo);
             sl.SetCellStyle("I9", estilo);
+            sl.SetCellStyle("J9", estilo);
+            sl.SetCellStyle("K9", estilo);
+            sl.SetCellStyle("L9", estilo);
+            sl.SetCellStyle("M9", estilo);
+            sl.SetCellStyle("N9", estilo);
+            sl.SetCellStyle("O9", estilo);
+            sl.SetCellStyle("P9", estilo);
+
             SLPageSettings sp = new SLPageSettings
             {
                 ShowGridLines = false
@@ -2484,7 +2498,7 @@ namespace WebApplication1.Controllers
             sl.SetPageSettings(sp);
 
             int celda = 9;
-            string sql = $"select Cuenta,CnGenerado, Id, Status,Cve_usuario,Ip,numeroOrden,FechaCaptura,FechaCompletado from okcliente where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            string sql = $"select Id,cuenta, orden,FechaCompletado,Ip,osGenerada,hub,nombre,telefono,tipo,comentario, encuesta, status, Ip, FechaCaptura,origen,usuario_captura from okCliente2 where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
             conn.Open();
@@ -2496,27 +2510,31 @@ namespace WebApplication1.Controllers
             while (reader.Read())
             {
                 celda++;
-                sl.SetCellValue("B" + celda, reader["Cuenta"].ToString());
-                sl.SetCellValue("C" + celda, reader["numeroOrden"].ToString());
-                sl.SetCellValue("D" + celda, reader["Status"].ToString());
-                sl.SetCellValue("E" + celda, reader["CnGenerado"].ToString());
-                sl.SetCellValue("F" + celda, reader["FechaCaptura"].ToString());
-                sl.SetCellValue("G" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("H" + celda, reader["Cve_usuario"].ToString());
-                sl.SetCellValue("I" + celda, reader["Ip"].ToString());
-                sl.SetCellValue("J" + celda, reader["Id"].ToString());
+                sl.SetCellValue("B" + celda, reader["Id"].ToString());
+                sl.SetCellValue("C" + celda, reader["cuenta"].ToString());
+                sl.SetCellValue("D" + celda, reader["orden"].ToString());
+                sl.SetCellValue("E" + celda, reader["status"].ToString());
+                sl.SetCellValue("F" + celda, reader["osGenerada"].ToString());
+                sl.SetCellValue("G" + celda, reader["telefono"].ToString());
+                sl.SetCellValue("H" + celda, reader["tipo"].ToString());
+                sl.SetCellValue("I" + celda, reader["comentario"].ToString());
+                sl.SetCellValue("J" + celda, reader["origen"].ToString());
+                sl.SetCellValue("K" + celda, reader["encuesta"].ToString());
+                sl.SetCellValue("L" + celda, reader["FechaCaptura"].ToString());
+                sl.SetCellValue("M" + celda, reader["FechaCompletado"].ToString());
+                sl.SetCellValue("N" + celda, reader["hub"].ToString());
+                sl.SetCellValue("O" + celda, reader["Ip"].ToString());
+                sl.SetCellValue("P" + celda, reader["usuario_captura"].ToString());
             }
 
             sl.SelectWorksheet("Detalle");
-
 
             MemoryStream stream = new MemoryStream();
             sl.SaveAs(stream);
             stream.Position = 0;
             return File(stream, "application/zip", "Reporte_Ok-Cliente.xlsx");
-
-
         }
+
 
         [HttpGet]
         [Route("ReporteRetencion0")]

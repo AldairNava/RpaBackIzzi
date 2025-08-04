@@ -44,7 +44,7 @@ namespace WebApplication1.Controllers
                 Console.WriteLine($"Ini: {iniString}");
                 Console.WriteLine($"Fin: {finString}");
 
-                string apiUrl = "http://192.168.51.210/api/pruebaController/countAudios";
+                string apiUrl = "http://192.168.51.210:1023/pruebaController/countAudios";
 
                 string jsonString = JsonConvert.SerializeObject(cronInfoFormatted);
 
@@ -86,7 +86,7 @@ namespace WebApplication1.Controllers
 
                 using (HttpClient httpClient = new HttpClient())
                 {
-                    httpClient.Timeout = TimeSpan.FromSeconds(350);
+                    httpClient.Timeout = TimeSpan.FromSeconds(600);
 
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 

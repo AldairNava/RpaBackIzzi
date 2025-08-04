@@ -72,6 +72,9 @@ namespace WebApplication1
         public DbSet<LogReprocesos> LogReprocesos { get; set; }
         public DbSet<LogCambioStatus> LogCambioStatus { get; set; }
         public DbSet<AgenteDepuracion> AgenteDepuracion { get; set; }
+        public DbSet<okCliente2> okCliente2 { get; set; }
+        public DbSet<okClienteReferencia> okClienteReferencia { get; set; }
+        public DbSet<Tablas> Tablas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

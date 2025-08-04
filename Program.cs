@@ -51,7 +51,7 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy(name: "MyAllowSpecificOrigins", builder => {
-        builder.WithOrigins("http://localhost:4200", "https://frontrpaizzi.azurewebsites.net", "http://192.168.49.76").AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins("http://localhost:4200", "https://frontrpaizzi.azurewebsites.net", "http://192.168.49.76", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
     });
 });
 builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
@@ -72,7 +72,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mi API v1");
+    });
 }
 
 app.UseHttpsRedirection();

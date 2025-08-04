@@ -94,8 +94,6 @@ namespace WebApplication1.Controllers
         }
 
 
-
-
         [Route("getStatsOkCliente")]
         [HttpGet]
         public async Task<IActionResult> getStatsOkCliente()
@@ -114,7 +112,7 @@ namespace WebApplication1.Controllers
                                     THEN 1 ELSE 0 END) AS Completado,
                                 SUM(CASE WHEN Status = 'Procesando' THEN 1 ELSE 0 END) AS Procesando,
                                 COUNT(*) AS Total
-                            FROM okcliente 
+                            FROM okCliente2 
                             WHERE CONVERT(date, FechaCaptura) BETWEEN @StartDate AND @EndDate";
 
             var result = new List<object>();
@@ -154,7 +152,6 @@ namespace WebApplication1.Controllers
         }
 
 
-
         [Route("ActualizaOkCliente")]
         [HttpPut]
         public dynamic ActualizaOkCliente(int id, [FromBody] okcliente Cuenta)
@@ -180,14 +177,15 @@ namespace WebApplication1.Controllers
             }
         }
 
+
         [HttpGet]
         [Route("getAllOkCliente")]
-        public async Task<ActionResult<IEnumerable<okcliente>>> getAllOkCliente()
+        public async Task<ActionResult<IEnumerable<okCliente2>>> getAllOkCliente()
         {
             try
             {
                 var Date = DateTime.Now.Date.ToString("yyyy-MM-dd");
-                var datos = _context.okcliente.FromSqlRaw($" select * from okcliente where CONVERT(date,FechaCaptura) between '{Date}' and '{Date}' order by FechaCaptura desc;").ToList();
+                var datos = _context.okCliente2.FromSqlRaw($" select * from okCliente2 where CONVERT(date,FechaCaptura) between '{Date}' and '{Date}' order by FechaCaptura desc;").ToList();
                 if (datos.Count() > 0)
                 {
                     return Ok(datos);
@@ -208,6 +206,7 @@ namespace WebApplication1.Controllers
             }
 
         }
+
 
         [HttpGet]
         [Route("getCuentaOkCliente")]
@@ -236,6 +235,7 @@ namespace WebApplication1.Controllers
             }
 
         }
+
 
         [Route("InsertarBasesOkClienteRPA")]
         [HttpPost]
@@ -297,6 +297,193 @@ namespace WebApplication1.Controllers
             }
         }
 
+
+        //[Route("InsertarBasesOkCliente2RPA")]
+        //[HttpPost]
+        //public dynamic InsertarBasesOkCliente2RPA([FromBody] JsonArray Info)
+        //{
+        //    var conn = new SqlConnection
+        //    {
+        //        ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;"
+        //    };
+
+        //    try
+        //    {
+        //        conn.Open();
+
+        //        foreach (var item in Info)
+        //        {
+        //            var data = (JsonObject)item;
+        //            var orden = data["orden"]?.ToString() ?? "";
+        //            var fechaCaptura = DateTime.Now;
+
+        //            const string checkSql = @"
+        //        SELECT COUNT(1)
+        //          FROM okCliente2
+        //         WHERE orden = @orden";
+        //            using (var checkCmd = new SqlCommand(checkSql, conn))
+        //            {
+        //                checkCmd.Parameters.AddWithValue("@orden", orden);
+        //                int existe = (int)checkCmd.ExecuteScalar();
+        //                if (existe > 0)
+        //                {
+        //                    continue;
+        //                }
+        //            }
+
+        //            // 2) Si no existe, insertar
+        //            const string insertSql = @"
+        //        INSERT INTO okCliente2 
+        //            (cuenta, orden, hub, nombre, telefono, tipo, comentario, encuesta, status, Ip, FechaCaptura,origen) 
+        //        VALUES 
+        //            (@cuenta, @orden, @hub, @nombre, @telefono, @tipo, @comentario, @encuesta, @status, @Ip, @FechaCaptura,@origen)";
+        //            using (var cmd = new SqlCommand(insertSql, conn))
+        //            {
+        //                cmd.Parameters.AddWithValue("@cuenta", data["cuenta"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@orden", orden);
+        //                cmd.Parameters.AddWithValue("@hub", data["hub"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@nombre", data["nombre"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@telefono", data["telefono"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@tipo", data["tipo"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@comentario", data["comentario"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@encuesta", data["encuesta"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@status", data["status"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@Ip", data["Ip"]?.ToString() ?? (object)DBNull.Value);
+        //                cmd.Parameters.AddWithValue("@FechaCaptura", fechaCaptura);
+        //                cmd.Parameters.AddWithValue("@origen", data["origen"]?.ToString() ?? (object)DBNull.Value);
+
+        //                cmd.ExecuteNonQuery();
+        //            }
+        //        }
+
+        //        conn.Close();
+        //        return Ok(new { message = "Registros procesados" });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        conn.Close();
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+        [Route("InsertarBasesOkCliente2RPA")]
+        [HttpPost]
+        public IActionResult InsertarBasesOkCliente2RPA([FromBody] JsonArray info)
+        {
+            var conn = new SqlConnection
+            {
+                ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;"
+            };
+            using var cmd = new SqlCommand("dbo.InsertarOkCliente2", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            string json = info.ToJsonString();
+
+            cmd.Parameters.AddWithValue("@json", json);
+
+            conn.Open();
+            cmd.ExecuteNonQuery();
+            return Ok(new { message = "Registros procesados en bloque" });
+        }
+
+
+
+
+        [Route("ActualizaOk2Cliente")]
+        [HttpPut]
+        public dynamic ActualizaOk2Cliente(int id, [FromBody] okCliente2 Cuenta)
+        {
+            try
+            {
+                if (id == Cuenta.Id)
+                {
+
+                    Cuenta.FechaCompletado = DateTime.Now;
+                    _context.Update(Cuenta);
+                    _context.SaveChanges();
+                    return Ok(Cuenta);
+
+                }
+                else
+                    return NotFound();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("getCuentaOkCliente2")]
+        public async Task<ActionResult<IEnumerable<okCliente2>>> getCuentaOkCliente2()
+        {
+            try
+            {
+                var datos = _context.okCliente2.FromSqlRaw("exec Sp_getCuentaokCliente2").ToList();
+                if (datos.Count() > 0)
+                {
+                    return Ok(datos);
+
+                }
+                else
+                {
+                    var d = new List<string>()
+                    {
+                        "SIN INFO"
+                    };
+                    return Ok(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        [Route("InsertarOkClienteReferencia")]
+        [HttpPost]
+        public dynamic InsertarOkClienteReferencia([FromBody] JsonArray Info)
+        {
+            var conn = new SqlConnection
+            {
+                ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;"
+            };
+
+            try
+            {
+                conn.Open();
+
+                foreach (var item in Info)
+                {
+                    var data = (JsonObject)item;
+                    var FechaCaptura = DateTime.Now;
+
+                    const string insertSql = @"
+                                    INSERT INTO okClienteReferencia 
+                                        (cuenta, FechaCaptura) 
+                                    VALUES 
+                                        (@cuenta, @FechaCaptura)";
+                    using (var cmd = new SqlCommand(insertSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@cuenta", data["cuenta"]?.ToString() ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@FechaCaptura", FechaCaptura);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                conn.Close();
+                return Ok(new { message = "Registros procesados" });
+            }
+            catch (Exception ex)
+            {
+                conn.Close();
+                return BadRequest(ex.Message);
+            }
+        }
 
 
     }

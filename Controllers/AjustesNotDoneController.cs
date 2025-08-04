@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace WebApplication1.Controllers
 {
@@ -823,15 +824,6 @@ namespace WebApplication1.Controllers
         [Route("getCuentaAjustesSinValidacion")]
         public async Task<ActionResult> GetCuentaAjustesSinValidacion()
         {
-            //lock (_lock)
-            //{
-            //    var now = DateTime.UtcNow;
-            //    if ((now - _lastRequestUtc).TotalSeconds < 2)
-            //    {
-            //        return Ok(new List<string> { "SIN INFO" });
-            //    }
-            //    _lastRequestUtc = now;
-            //}
 
             try
             {
@@ -1548,54 +1540,99 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // 1) Extraemos los valores del JSON
+                // 1) Validar payload
                 if (info == null
                     || info["id"] == null
+                    || info["proceso"] == null
+                    || info["status"] == null
                     || info["usuario"] == null)
                 {
-                    return BadRequest(new { message = "Petición inválida." });
+                    return BadRequest(new { message = "Petición inválida. Debe incluir id, proceso, status y usuario." });
                 }
 
                 int id = info["id"]!.GetValue<int>();
+                string proceso = info["proceso"]!.GetValue<string>();
+                string status = info["status"]!.GetValue<string>();
                 string usuario = info["usuario"]!.GetValue<string>();
 
-                // 2) Abrimos conexión
+                // 2) Definir el mapa de procesos
+                var configProcesos = new Dictionary<string, (string tabla, bool incluyeProcesando)>(StringComparer.OrdinalIgnoreCase)
+                {
+                    // Procesos que usan la tabla AjustesSinValidacion y requieren Procesando = 0
+                    ["AjustesSinValidacion"] = ("AjustesSinValidacion", true),
+                    ["DepuracionBasesCanceladasOS"] = ("DepuracionBasesCanceladasOS", true),
+                    ["AjustesBasesCasosNeogcioCobranza"] = ("AjustesBasesCasosNeogcioCobranza", true),
+                    ["CasosNegocioSinValidacion"] = ("CasosNegocioSinValidacion", true),
+                    ["EjecucionNotDone"] = ("EjecucionNotDone", true),
+                    ["DepuracionBasesCanceladasOSExt"] = ("DepuracionBasesCanceladasOSExt", true),
+                    ["NotDoneCreacionOrdenModel"] = ("NotDoneCreacionOrdenModel", true),
+                    ["OrdenTroubleCall"] = ("OrdenTroubleCall", true),
+
+                    ["okCliente2"] = ("okCliente2", false),
+                    ["Retencion0"] = ("Retencion0", false),
+                    ["CreacionCNs"] = ("CreacionCNs", false),
+
+                };
+
+                // 3) Buscar la configuración del proceso
+                if (!configProcesos.TryGetValue(proceso, out var cfg))
+                {
+                    return BadRequest(new { message = $"Proceso '{proceso}' no reconocido." });
+                }
+
+                // 4) Abrir conexión
                 using var conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
                 conn.Open();
 
-                // 3) UPDATE de la fila en AjustesSinValidacion
-                var sqlUpdate = @"
-                        UPDATE AjustesSinValidacion
-                        SET 
-                            Status            = 'Registro pendiente',
-                            Procesando        = 0,
-                            UsuarioReproceso  = @usuario,
-                            FechaReproceso    = DATEADD(hour, -6, GETDATE())
-                        WHERE Id = @id;
-                    ";
+                // 5) Construir UPDATE dinámico
+                string sqlUpdate;
+                if (cfg.incluyeProcesando)
+                {
+                    sqlUpdate = $@"
+                UPDATE {cfg.tabla}
+                SET
+                  status           = @status,
+                  Procesando       = 0
+                WHERE Id = @id;
+            ";
+                }
+                else
+                {
+                    sqlUpdate = $@"
+                UPDATE {cfg.tabla}
+                SET
+                  Status           = @status
+                WHERE Id = @id;
+            ";
+                }
+
                 using (var cmdUpd = new SqlCommand(sqlUpdate, conn))
                 {
-                    cmdUpd.Parameters.AddWithValue("@usuario", usuario);
                     cmdUpd.Parameters.AddWithValue("@id", id);
+                    cmdUpd.Parameters.AddWithValue("@status", status);
+                    cmdUpd.Parameters.AddWithValue("@usuario", usuario);
                     cmdUpd.ExecuteNonQuery();
                 }
-                var sqlInsert = @"
-                        INSERT INTO LogReprocesos (
-                            id_Reprocesado,
-                            usuario,
-                            FechaReproceso,
-                            Proceso
-                        ) VALUES (
-                            @id,
-                            @usuario,
-                            DATEADD(hour, -6, GETDATE()),
-                            'Ajustes Sin Validacion'
-                        );
-                    ";
+
+                string sqlInsert = @"
+            INSERT INTO LogReprocesos (
+                id_Reprocesado,
+                usuario,
+                FechaReproceso,
+                Proceso
+            ) VALUES (
+                @id,
+                @usuario,
+                DATEADD(hour, -6, GETDATE()),
+                @proceso
+            );
+        ";
                 using (var cmdIns = new SqlCommand(sqlInsert, conn))
                 {
                     cmdIns.Parameters.AddWithValue("@id", id);
                     cmdIns.Parameters.AddWithValue("@usuario", usuario);
+                    cmdIns.Parameters.AddWithValue("@proceso", proceso);
+                    cmdIns.Parameters.AddWithValue("@status", status);
                     cmdIns.ExecuteNonQuery();
                 }
 
@@ -1607,6 +1644,7 @@ namespace WebApplication1.Controllers
             }
         }
 
+
         [HttpPost]
         [Route("reprocesarMasivo")]
         public IActionResult ReprocesarMasivo([FromBody] JsonObject info)
@@ -1614,42 +1652,86 @@ namespace WebApplication1.Controllers
             try
             {
                 if (info == null
-                    || info["ids"] == null
+                    || info["registros"] == null
                     || info["usuario"] == null)
                 {
-                    return BadRequest(new { message = "Petición inválida." });
+                    return BadRequest(new { message = "Petición inválida. Debe incluir 'registros' y 'usuario'." });
                 }
 
                 string usuario = info["usuario"]!.GetValue<string>();
-
-                var idsArray = info["ids"]!.AsArray();
-                if (idsArray.Count == 0)
+                var registros = info["registros"]!.AsArray();
+                if (registros.Count == 0)
                 {
-                    return BadRequest(new { message = "No se proporcionaron IDs para reprocesar." });
+                    return BadRequest(new { message = "No se proporcionaron registros para reprocesar." });
                 }
+
+                var configProcesos = new Dictionary<string, (string tabla, bool incluyeProcesando)>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["AjustesSinValidacion"] = ("AjustesSinValidacion", true),
+                    ["DepuracionBasesCanceladasOS"] = ("DepuracionBasesCanceladasOS", true),
+                    ["AjustesBasesCasosNeogcioCobranza"] = ("AjustesBasesCasosNeogcioCobranza", true),
+                    ["CasosNegocioSinValidacion"] = ("CasosNegocioSinValidacion", true),
+                    ["EjecucionNotDone"] = ("EjecucionNotDone", true),
+                    ["DepuracionBasesCanceladasOSExt"] = ("DepuracionBasesCanceladasOSExt", true),
+                    ["NotDoneCreacionOrdenModel"] = ("NotDoneCreacionOrdenModel", true),
+                    ["OrdenTroubleCall"] = ("OrdenTroubleCall", true),
+
+                    ["okCliente2"] = ("okCliente2", false),
+                    ["Retencion0"] = ("Retencion0", false),
+                    ["CreacionCNs"] = ("CreacionCNs", false),
+
+                };
 
                 using var conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
                 conn.Open();
 
                 int procesados = 0;
-                foreach (var idNode in idsArray)
+                foreach (var node in registros)
                 {
-                    if (!int.TryParse(idNode!.ToString(), out int id))
+                    var obj = node?.AsObject();
+                    if (obj == null
+                        || obj["id"] == null
+                        || obj["proceso"] == null
+                        || obj["status"] == null)
+                    {
                         continue;
+                    }
 
-                    var sqlUpdate = @"
-                UPDATE AjustesSinValidacion
-                SET 
-                    Status           = 'Registro pendiente',
-                    Procesando       = 0,
-                    UsuarioReproceso = @usuario,
-                    FechaReproceso   = DATEADD(hour, -6, GETDATE())
-                WHERE Id = @id;
-            ";
+                    int id = obj["id"]!.GetValue<int>();
+                    string proceso = obj["proceso"]!.GetValue<string>();
+                    string status = obj["status"]!.GetValue<string>();
+
+                    if (!configProcesos.TryGetValue(proceso, out var cfg))
+                    {
+                        continue;
+                    }
+
+                    string sqlUpdate;
+                    if (cfg.incluyeProcesando)
+                    {
+                        sqlUpdate = $@"
+                    UPDATE {cfg.tabla}
+                    SET
+                      Status           = @status,
+                      Procesando       = 0
+                    WHERE Id = @id;
+                ";
+                    }
+                    else
+                    {
+                        sqlUpdate = $@"
+                    UPDATE {cfg.tabla}
+                    SET
+                      Status           = @status
+                    WHERE Id = @id;
+                ";
+                    }
+
                     using (var cmdUpd = new SqlCommand(sqlUpdate, conn))
                     {
-                        cmdUpd.Parameters.AddWithValue("@usuario", usuario);
                         cmdUpd.Parameters.AddWithValue("@id", id);
+                        cmdUpd.Parameters.AddWithValue("@status", status);
+                        cmdUpd.Parameters.AddWithValue("@usuario", usuario);
                         cmdUpd.ExecuteNonQuery();
                     }
 
@@ -1663,13 +1745,14 @@ namespace WebApplication1.Controllers
                     @id,
                     @usuario,
                     DATEADD(hour, -6, GETDATE()),
-                    'Ajustes Sin Validacion'
+                    @proceso
                 );
             ";
                     using (var cmdIns = new SqlCommand(sqlInsert, conn))
                     {
                         cmdIns.Parameters.AddWithValue("@id", id);
                         cmdIns.Parameters.AddWithValue("@usuario", usuario);
+                        cmdIns.Parameters.AddWithValue("@proceso", proceso);
                         cmdIns.ExecuteNonQuery();
                     }
 
@@ -1685,6 +1768,7 @@ namespace WebApplication1.Controllers
         }
 
 
+
         [HttpPost]
         [Route("cambiarStatusIndividual")]
         public IActionResult CambiarStatusIndividual([FromBody] JsonObject info)
@@ -1694,6 +1778,7 @@ namespace WebApplication1.Controllers
                 // 1) Validación básica
                 if (info == null
                     || info["id"] == null
+                    || info["proceso"] == null
                     || info["status"] == null
                     || info["usuario"] == null)
                 {
@@ -1701,27 +1786,31 @@ namespace WebApplication1.Controllers
                 }
 
                 int id = info["id"]!.GetValue<int>();
+                string proceso = info["proceso"]!.GetValue<string>();
                 string status = info["status"]!.GetValue<string>();
                 string usuario = info["usuario"]!.GetValue<string>();
+
+                // 1b) Lista blanca de tablas permitidas (opcional, pero muy recomendable)
+                var tablasPermitidas = new[] { "AjustesSinValidacion", "okCliente2", "OrdenTroubleCall", "EjecucionNotDone", "CancelacionSinValidacion", "CasosNegocioSinValidacion", "AjustesBasesCasosNeogcioCobranza", "AjustesCambioServicios", "NotDoneCreacionOrdenModel", "DepuracionBasesCanceladasOSExt", "DepuracionBasesCanceladasOS" };
+
+                if (!tablasPermitidas.Contains(proceso))
+                {
+                    return BadRequest(new { message = $"El proceso '{proceso}' no está permitido." });
+                }
 
                 // 2) Abrimos conexión
                 using var conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
                 conn.Open();
 
-                // 3) UPDATE en AjustesSinValidacion
-                var sqlUpdate = @"
-            UPDATE AjustesSinValidacion
-            SET
-                Status         = @status,
-                Procesando     = 0,
-                UsuarioCambio  = @usuario,
-                FechaCambio    = DATEADD(hour, -6, GETDATE())
+                // 3) UPDATE dinámico en la tabla correspondiente
+                var sqlUpdate = $@"
+            UPDATE [{proceso}]
+            SET Status = @status
             WHERE Id = @id;
         ";
                 using (var cmd = new SqlCommand(sqlUpdate, conn))
                 {
                     cmd.Parameters.AddWithValue("@status", status);
-                    cmd.Parameters.AddWithValue("@usuario", usuario);
                     cmd.Parameters.AddWithValue("@id", id);
                     cmd.ExecuteNonQuery();
                 }
@@ -1737,13 +1826,14 @@ namespace WebApplication1.Controllers
                 @id,
                 @usuario,
                 DATEADD(hour, -6, GETDATE()),
-                'Ajustes Sin Validacion'
+                @proceso
             );
         ";
                 using (var cmd = new SqlCommand(sqlInsert, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
                     cmd.Parameters.AddWithValue("@usuario", usuario);
+                    cmd.Parameters.AddWithValue("@proceso", proceso);
                     cmd.ExecuteNonQuery();
                 }
 
@@ -1754,6 +1844,7 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, new { message = "Error al cambiar status.", detail = ex.Message });
             }
         }
+
 
         [HttpPost]
         [Route("cambiarStatusMasivo")]
@@ -1769,71 +1860,24 @@ namespace WebApplication1.Controllers
                     return BadRequest(new { message = "Petición inválida." });
                 }
 
+                // 2) Extraer parámetros
                 string usuario = info["usuario"]!.GetValue<string>();
-                var registros = info["registros"]!.AsArray();
+                string jsonRegistros = info["registros"]!.ToJsonString();
 
-                if (registros.Count == 0)
-                    return BadRequest(new { message = "No se proporcionaron registros para cambiar status." });
-
-                // 2) Abrimos conexión una sola vez
+                // 3) Llamar al SP en un solo batch
                 using var conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
-                conn.Open();
-
-                int procesados = 0;
-                foreach (var nodo in registros)
+                using var cmd = new SqlCommand("dbo.CambiarStatusMasivo", conn)
                 {
-                    var obj = nodo!.AsObject();
-                    if (obj["id"] == null || obj["status"] == null)
-                        continue;
+                    CommandType = CommandType.StoredProcedure
+                };
 
-                    if (!int.TryParse(obj["id"]!.ToString(), out int id))
-                        continue;
+                cmd.Parameters.AddWithValue("@jsonRegistros", jsonRegistros);
+                cmd.Parameters.AddWithValue("@usuario", usuario);
 
-                    string status = obj["status"]!.GetValue<string>();
+                conn.Open();
+                cmd.ExecuteNonQuery();
 
-                    // 3) UPDATE por cada ID
-                    var sqlUpdate = @"
-                UPDATE AjustesSinValidacion
-                SET
-                    Status        = @status,
-                    Procesando    = 0,
-                    UsuarioCambio = @usuario,
-                    FechaCambio   = DATEADD(hour, -6, GETDATE())
-                WHERE Id = @id;
-            ";
-                    using (var cmdUpd = new SqlCommand(sqlUpdate, conn))
-                    {
-                        cmdUpd.Parameters.AddWithValue("@status", status);
-                        cmdUpd.Parameters.AddWithValue("@usuario", usuario);
-                        cmdUpd.Parameters.AddWithValue("@id", id);
-                        cmdUpd.ExecuteNonQuery();
-                    }
-
-                    // 4) INSERT en LogCambioStatus
-                    var sqlInsert = @"
-                INSERT INTO LogCambioStatus (
-                    id_Cambiado,
-                    usuario,
-                    FechaCambio,
-                    Proceso
-                ) VALUES (
-                    @id,
-                    @usuario,
-                    DATEADD(hour, -6, GETDATE()),
-                    'Ajustes Sin Validacion'
-                );
-            ";
-                    using (var cmdIns = new SqlCommand(sqlInsert, conn))
-                    {
-                        cmdIns.Parameters.AddWithValue("@id", id);
-                        cmdIns.Parameters.AddWithValue("@usuario", usuario);
-                        cmdIns.ExecuteNonQuery();
-                    }
-
-                    procesados++;
-                }
-
-                return Ok(new { message = $"Se cambiaron status de {procesados} cuentas correctamente." });
+                return Ok(new { message = "Status masivo cambiado correctamente." });
             }
             catch (Exception ex)
             {

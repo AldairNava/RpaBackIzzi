@@ -283,19 +283,21 @@ namespace WebApplication1.Controllers
             try
             {
                 var datos = _context.AgenteDepuracion
-                    .FromSqlRaw($"SELECT * FROM AgenteDepuracion where status ='Marcando'")
+                    .Where(a => a.status == "Marcando")
                     .ToList();
 
-                if (datos.Count > 0)
-                    return Ok(datos);
-
-                return Ok(new List<string> { "SIN INFO" });
+                if (!datos.Any())
+                    return Ok(new List<string> { "SIN INFO" });
+                datos.ForEach(a => a.status = "llamada");
+                _context.SaveChanges();
+                return Ok(datos);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
 
         [HttpGet("getCuentaAgenteDepuracion")]
         public ActionResult<IEnumerable<AgenteDepuracion>> getCuentaAgenteDepuracion()
