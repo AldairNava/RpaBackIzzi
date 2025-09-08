@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Models
+﻿using Newtonsoft.Json;
+
+namespace WebApplication1.Models
 {
     public class Tablas
     {
@@ -112,15 +114,33 @@
 
     }
 
+    public class SeriesMasivoExport
+    {
+        [JsonProperty("SERIE")]
+        public string? serie { get; set; }
+
+        [JsonProperty("PUNTODEINVENTARIO")]
+        public string? puntoDeInventario { get; set; }
+    }
+
     public class SeriesMasivo
     {
         public int Id { get; set; }
-        public string? serie { get; set; }
-        public string? puntoInventario { get; set; }
-        public string? status { get; set; }
-        public DateTime? FechaCaptura { get; set; }
-        public DateTime? FechaCompletado { get; set; }
 
+        [JsonProperty("SERIE")]
+        public string? serie { get; set; }
+
+        [JsonProperty("PUNTO DE INVENTARIO")]
+        public string? puntoInventario { get; set; }
+
+        [JsonProperty("status")]
+        public string? status { get; set; }
+
+        [JsonProperty("FechaCaptura")]
+        public DateTime? FechaCaptura { get; set; }
+
+        [JsonProperty("FechaCompletado")]
+        public DateTime? FechaCompletado { get; set; }
     }
 
     public class MailRequest
@@ -214,15 +234,57 @@
         public string? Telefono { get; set; }
 
     }
+    public class UsuarioUpdateDto
+    {
+        public int id { get; set; }
+        public string nombre { get; set; }
+        public string apellido { get; set; }
+        public string rol { get; set; }
+        public string correo { get; set; }
+        public string usuario { get; set; }
+        public string password { get; set; }
+        public string status { get; set; }
+        public string area { get; set; }
+        public DateTime updatedAt { get; set; }
+        public string editor { get; set; }
+        public string passwordConfirm { get; set; }
+    }
+
 
 
     public class Usuario
     {
+        public int id { get; set; }
+        public string nombre { get; set; }
+        public string apellido { get; set; }
+        public string rol { get; set; }
+        public string correo { get; set; }
+        public string usuario { get; set; }
+        public string password { get; set; }
+        public string status { get; set; }
+        public string area { get; set; }
+        public DateTime updatedAt { get; set; }
+
+    }
+
+    public class UsuariosLog
+    {
+        public int id { get; set; }
+        public string usuario_id { get; set; }
+        public string editor_correo { get; set; }
+        public DateTime updatedAt { get; set; }
+
+    }
+    public class Roles
+    {
         public int Id { get; set; }
-        public string Nombre { get; set; }
-        public string Correo { get; set; }
+        public string nombreRol { get; set; }
+        public string Apellido { get; set; }
         public string Rol { get; set; }
-        public string Otros { get; set; }
+        public string Correo { get; set; }
+        public string usuario { get; set; }
+        public string contraseña { get; set; }
+
     }
 
     public class AgenteDepuracion

@@ -110,6 +110,7 @@
             public DateTime? FechaReproceso { get; set; }
             public string? UsuarioCambio { get; set; }
             public DateTime? FechaCambio { get; set; }
+            public string? prioridad { get; set; }
     }
 
     public class LogReprocesos

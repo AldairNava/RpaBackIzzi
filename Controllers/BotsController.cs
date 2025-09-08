@@ -4,6 +4,8 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Diagnostics;
 using System.Net;
@@ -1368,37 +1370,50 @@ namespace WebApplication1.Controllers
 
 
 
-
-        [Route("InsertarExcelSeriesMasivo")]
         [HttpPost]
-        public dynamic InsertarExcelSeriesMasivo([FromBody] JsonArray Info)
+        [Route("InsertarExcelSeriesMasivo")]
+        public IActionResult InsertarExcelSeriesMasivo([FromBody] List<SeriesMasivo> info)
         {
-            SqlConnection conn = new SqlConnection();
-            conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
+            string connectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
+
             try
             {
-                conn.Open();
-
-                foreach (var data in Info)
+                // Mapea la lista recibida a la de exportación
+                var exportList = info.Select(x => new SeriesMasivoExport
                 {
-                    string sql = "INSERT INTO SeriesMasivo (puntoInventario, serie, FechaCaptura, FechaCompletado, status) VALUES (@puntoInventario, @serie, @FechaCaptura, @FechaCompletado, @status)";
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@puntoInventario", data["PUNTO DE INVENTARIO"].ToString());
-                    cmd.Parameters.AddWithValue("@serie", data["SERIE"].ToString());
-                    cmd.Parameters.AddWithValue("@FechaCaptura", DateTime.Now);
-                    cmd.Parameters.AddWithValue("@FechaCompletado", "");
-                    cmd.Parameters.AddWithValue("@status", "Pendiente");
+                    serie = x.serie,
+                    puntoDeInventario = x.puntoInventario
+                }).ToList();
+
+                string jsonString = JsonConvert.SerializeObject(exportList);
+
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand("InsertarSeriesMasivoJSON", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@json", jsonString);
+
+                    var paramOut = new SqlParameter("@registrosInsertados", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(paramOut);
+
+                    conn.Open();
                     cmd.ExecuteNonQuery();
+                    conn.Close();
+
+                    int insertados = (int)cmd.Parameters["@registrosInsertados"].Value;
+                    return Ok(new { mensaje = "Proceso exitoso", insertados });
                 }
-                conn.Close();
-                return Ok();
             }
             catch (Exception ex)
             {
-                conn.Close();
-                return BadRequest(ex.Message);
+                return BadRequest(new { mensaje = "Error al insertar datos", error = ex.Message });
             }
         }
+
+
 
 
 

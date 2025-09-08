@@ -61,6 +61,7 @@ namespace WebApplication1
         public DbSet<SeriesMasivo>SeriesMasivo { get; set; }
         public DbSet<seriesExlcucion> seriesExlcucion { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<UsuariosLog> UsuariosLog { get; set; }
         public DbSet<okcliente> okcliente { get; set; }
         public DbSet<Retencion> Retencion { get; set; }
         public DbSet<DepuracionNotdone> DepuracionNotdone { get; set; }

@@ -13,7 +13,7 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class LoginSamlController : Controller
     {
-        private readonly string connectionString = "Server=192.168.51.210;Database=audios_dana;User=root;Password=;";
+        private readonly string connectionString = "Server=192.168.51.210;Database=audios_dana;User=root;Password=thor;";
 
         [HttpGet("login")]
         public IActionResult Login()

@@ -50,7 +50,7 @@ namespace WebApplication1.Controllers
 
                 var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-                _httpClient.Timeout = TimeSpan.FromSeconds(300);
+                _httpClient.Timeout = TimeSpan.FromSeconds(600);
 
                 HttpResponseMessage response = await _httpClient.PostAsync(apiUrl, content);
 

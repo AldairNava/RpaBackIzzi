@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
+using WebApplication1;
+using WebApplication1.Models;
 
 [Route("[controller]")]
 public class UserController : Controller
@@ -53,4 +55,5 @@ public class UserController : Controller
 
         return Ok(user);
     }
+
 }

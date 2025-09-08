@@ -740,59 +740,52 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // Obtén todos los registros de la tabla AjustesSinValidacion del día especificado
                 var registros = _context.AjustesSinValidacion.Where(a => a.FechaCaptura == fecha.Date);
 
-                // Verifica si hay registros para actualizar
                 if (!registros.Any())
                 {
                     return NotFound("No se encontraron registros para la fecha especificada.");
                 }
 
-                // Actuualiza el estado de cada registro a 'Registro pendiente'
                 foreach (var registro in registros)
                 {
                     registro.Status = "Registro pendiente";
                 }
 
-                // Guarda los cambios en la base de datos
                 _context.SaveChanges();
 
                 return Ok("El estado de los registros ha sido actualizado a 'Registro pendiente'.");
             }
             catch (Exception ex)
             {
-                // Maneja cualquier error que pueda ocurrir
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
 
-
         [Route("InsertarBasesAjustesSinValidacion")]
         [HttpPost]
-        public dynamic InsertarBasesAjustesSinValidacion([FromBody] JsonArray Info)
+        public IActionResult InsertarBasesAjustesSinValidacion([FromBody] JsonArray info)
         {
-            SqlConnection conn = new SqlConnection();
-            conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
-            try
+            var conn = new SqlConnection
             {
-                conn.Open();
-                foreach (var data in Info)
-                {
-                    string sql = "insert into AjustesSinValidacion (cuenta,motivoAjuste,comentarioAjuste,cantidadAjustar,tipoAplicacion,Cve_usuario,IP,Procesando,Status,FechaCaptura) values ('" + data["Cuenta"] + "','" + data["Motivo ajuste"] + "','" + data["Comentario ajuste"] + "','" + data["Cantidad a ajustar"] + "','" + data["Tipo de Ajuste"] + "','" + data["Cve_usuario"] + "','" + data["IP"] + "','" + data["Procesando"] + "','" + data["Status"] + "','" + data["fechaCaptura"] + "')";
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.ExecuteNonQuery();
-                }
-                conn.Close();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                conn.Close();
-                return BadRequest(ex.Message);
-            }
+                ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;"
+            };
 
+            using var cmd = new SqlCommand("dbo.sp_InsertarAjustesSinValidacion", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            string json = info.ToJsonString();
+            cmd.Parameters.AddWithValue("@json", json);
+
+            conn.Open();
+            cmd.ExecuteNonQuery();
+            conn.Close();
+
+            return Ok(new { message = "Registros procesados en bloque" });
         }
+
 
         [Route("InsertarBasesAjustesCasosNegocioCobranza")]
         [HttpPost]

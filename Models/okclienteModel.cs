@@ -25,6 +25,9 @@
         public DateTime? FechaCaptura { get; set; }
         public DateTime? FechaCompletado { get; set; }
         public string? Usuario_Captura { get; set; }
+        public int? prioridad { get; set; }
+        public string? Substatus { get; set; }
+        public string? cnGenerado { get; set; }
 
     }
 }

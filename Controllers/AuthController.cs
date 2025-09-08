@@ -64,17 +64,15 @@ namespace WebApplication1.Controllers
                 var conn = _context.Database.GetDbConnection();
                 await conn.OpenAsync();
 
+                var listaPendientes = new List<object>();
+                var listaUltimos = new List<object>();
+
                 await using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = "sp_ObtenerPendientes";
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
                     cmd.CommandTimeout = 240;
 
-                    // Listas para acumulación de resultados
-                    var listaPendientes = new List<object>();
-                    var listaUltimos = new List<object>();
-
-                    // Ejecutamos y leemos el primer result set: Pendientes por tabla
                     await using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -87,8 +85,6 @@ namespace WebApplication1.Controllers
                                              : 0
                             });
                         }
-
-                        // Pasamos al segundo result set: Ultimos por tabla e IP
                         if (await reader.NextResultAsync())
                         {
                             while (await reader.ReadAsync())
@@ -104,18 +100,50 @@ namespace WebApplication1.Controllers
                             }
                         }
                     }
-
-                    // Si no hay datos en ninguno de los dos...
-                    if (!listaPendientes.Any() && !listaUltimos.Any())
-                        return Ok("SIN INFO");
-
-                    // Retornamos un objeto con ambas listas
-                    return Ok(new
-                    {
-                        pendientes = listaPendientes,
-                        ultimos = listaUltimos
-                    });
                 }
+                await using (var cmd2 = conn.CreateCommand())
+                {
+                    cmd2.CommandText = "sp_ObtenerPendientes_SUCURSALES";
+                    cmd2.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd2.CommandTimeout = 240;
+
+                    await using (var reader = await cmd2.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            listaPendientes.Add(new
+                            {
+                                Tabla = reader["Tabla"]?.ToString(),
+                                Pendientes = reader["Pendientes"] != DBNull.Value
+                                             ? Convert.ToInt32(reader["Pendientes"])
+                                             : 0
+                            });
+                        }
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                listaUltimos.Add(new
+                                {
+                                    Tabla = reader["Tabla"]?.ToString(),
+                                    IP = reader["IP"]?.ToString(),
+                                    UltimaFechaCompletado = reader["UltimaFechaCompletado"] != DBNull.Value
+                                                             ? (DateTime?)reader["UltimaFechaCompletado"]
+                                                             : null
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (!listaPendientes.Any() && !listaUltimos.Any())
+                    return Ok("SIN INFO");
+
+                return Ok(new
+                {
+                    pendientes = listaPendientes,
+                    ultimos = listaUltimos
+                });
             }
             catch (Exception ex)
             {
@@ -128,6 +156,7 @@ namespace WebApplication1.Controllers
                     await _context.Database.GetDbConnection().CloseAsync();
             }
         }
+
 
 
     }

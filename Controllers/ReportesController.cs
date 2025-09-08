@@ -63,6 +63,7 @@ namespace WebApplication1.Controllers
             }
 
         }
+        
         [HttpGet]
         [Route("getTipoReportesSucursales")]
         public async Task<ActionResult<IEnumerable<ReportesModel>>> getTipoReportesSucursales()
@@ -93,7 +94,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteAjustesCasoNegocioCobranza")]
-        public IActionResult getReporteAjustesCasoNegocioCobranza(string fecha1, string fecha2)
+        public IActionResult getReporteAjustesCasoNegocioCobranza(string fecha1, string fecha2,string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -239,8 +240,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("I" + celda, reader["motivos"].ToString());
                 sl.SetCellValue("J" + celda, reader["solucion"].ToString());
                 sl.SetCellValue("K" + celda, reader["submotivo"].ToString());
-                sl.SetCellValue("L" + celda, reader["fechaCompletado"].ToString());
-                sl.SetCellValue("M" + celda, reader["fechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("M" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("L" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("N" + celda, reader["cnGenerado"].ToString());
                 sl.SetCellValue("O" + celda, reader["statusNegocioGenerado"].ToString());
                 sl.SetCellValue("P" + celda, reader["numeroAjuste"].ToString());
@@ -430,8 +446,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("I" + celda3, reader3["motivos"].ToString());
                 sl.SetCellValue("J" + celda3, reader3["solucion"].ToString());
                 sl.SetCellValue("K" + celda3, reader3["submotivo"].ToString());
-                sl.SetCellValue("L" + celda3, reader3["fechaCompletado"].ToString());
-                sl.SetCellValue("M" + celda3, reader3["fechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("M" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["fechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("L" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("L" + celda, reader["fechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("N" + celda3, reader3["cnGenerado"].ToString());
                 sl.SetCellValue("O" + celda3, reader3["statusNegocioGenerado"].ToString());
                 sl.SetCellValue("P" + celda3, reader3["numeroAjuste"].ToString());
@@ -461,7 +492,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteAjustesCasoNegocioCobranzaSinValidacion")]
-        public IActionResult getReporteAjustesCasoNegocioCobranzaSinValidacion(string fecha1, string fecha2)
+        public IActionResult getReporteAjustesCasoNegocioCobranzaSinValidacion(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -557,6 +588,7 @@ namespace WebApplication1.Controllers
             sl.SetCellValue("N9", "Numero de Ajuste");
             sl.SetCellValue("O9", "Estatus Ajuste");
             sl.SetCellValue("P9", "ID");
+            sl.SetCellValue("Q9", "Prioridad");
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
             sl.SetCellStyle("D9", estilo);
@@ -572,6 +604,7 @@ namespace WebApplication1.Controllers
             sl.SetCellStyle("N9", estilo);
             sl.SetCellStyle("O9", estilo);
             sl.SetCellStyle("P9", estilo);
+            sl.SetCellStyle("Q9", estilo);
             SLPageSettings sp = new SLPageSettings
             {
                 ShowGridLines = false
@@ -599,8 +632,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("E" + celda, reader["cantidadAjustar"].ToString());
                 sl.SetCellValue("F" + celda, reader["tipoAplicacion"].ToString());
                 sl.SetCellValue("G" + celda, reader["Cve_usuario"].ToString());
-                sl.SetCellValue("H" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("I" + celda, reader["FechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("I" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("I" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("H" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("H" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("I" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("H" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("J" + celda, reader["Status"].ToString());
                 sl.SetCellValue("K" + celda, reader["Procesando"].ToString());
                 sl.SetCellValue("L" + celda, reader["IP"].ToString());
@@ -608,20 +656,7 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("N" + celda, reader["numeroAjuste"].ToString());
                 sl.SetCellValue("O" + celda, reader["estatusAjuste"].ToString());
                 sl.SetCellValue("P" + celda, reader["Id"].ToString());
-                sl.SetCellStyle("B" + celda, estilo1);
-                sl.SetCellStyle("C" + celda, estilo1);
-                sl.SetCellStyle("D" + celda, estilo1);
-                sl.SetCellStyle("E" + celda, estilo1);
-                sl.SetCellStyle("F" + celda, estilo1);
-                sl.SetCellStyle("G" + celda, estilo1);
-                sl.SetCellStyle("H" + celda, estilo1);
-                sl.SetCellStyle("I" + celda, estilo1);
-                sl.SetCellStyle("J" + celda, estilo1);
-                sl.SetCellStyle("K" + celda, estilo1);
-                sl.SetCellStyle("L" + celda, estilo1);
-                sl.SetCellStyle("M" + celda, estilo1);
-                sl.SetCellStyle("N" + celda, estilo1);
-                sl.SetCellStyle("O" + celda, estilo1);
+                sl.SetCellValue("Q" + celda, reader["prioridad"].ToString());
             }
 
             sl.AddWorksheet("Resumen");//otra pagina
@@ -716,7 +751,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteDepuracionOS")]
-        public IActionResult getReporteDepuracionOS(string fecha1, string fecha2)
+        public IActionResult getReporteDepuracionOS(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -860,33 +895,29 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("H" + celda, reader["Tipo"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Tipo"].ToString()));
                 sl.SetCellValue("I" + celda, reader["Cn_generado"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Cn_generado"].ToString()));
                 sl.SetCellValue("J" + celda, reader["FechaHoraCierre"].ToString());
-                sl.SetCellValue("K" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("L" + celda, reader["FechaCarga"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCarga"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("L" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("L" + celda, reader["FechaCarga"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("K" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("K" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("L" + celda, reader["FechaCarga"]?.ToString());
+                    sl.SetCellValue("K" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("M" + celda, reader["Status"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Status"].ToString()));
                 sl.SetCellValue("N" + celda, reader["Procesando"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Procesando"].ToString()));
                 sl.SetCellValue("O" + celda, reader["Compania"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Compania"].ToString()));
                 sl.SetCellValue("P" + celda, reader["Comentarios"] == DBNull.Value ? "" : LimpiarCaracteres(reader["Comentarios"].ToString()));
                 sl.SetCellValue("Q" + celda, reader["Id"].ToString());
                 sl.SetCellValue("R" + celda, reader["IP"].ToString());
-                //sl.SetCellValue("S" + celda, reader["Source"].ToString());
-                //sl.SetCellStyle("B" + celda, estilo1);
-                //sl.SetCellStyle("C" + celda, estilo1);
-                //sl.SetCellStyle("D" + celda, estilo1);
-                //sl.SetCellStyle("E" + celda, estilo1);
-                //sl.SetCellStyle("F" + celda, estilo1);
-                //sl.SetCellStyle("G" + celda, estilo1);
-                //sl.SetCellStyle("H" + celda, estilo1);
-                //sl.SetCellStyle("I" + celda, estilo1);
-                //sl.SetCellStyle("J" + celda, estilo1);
-                //sl.SetCellStyle("K" + celda, estilo1);
-                //sl.SetCellStyle("L" + celda, estilo1);
-                //sl.SetCellStyle("M" + celda, estilo1);
-                //sl.SetCellStyle("N" + celda, estilo1);
-                //sl.SetCellStyle("O" + celda, estilo1);
-                //sl.SetCellStyle("P" + celda, estilo1);
-                //sl.SetCellStyle("Q" + celda, estilo1);
-                //sl.SetCellStyle("R" + celda, estilo1);
-                //sl.SetCellStyle("S" + celda, estilo1);
             }
             conn.Close();
 
@@ -1008,40 +1039,36 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("O" + celda1, reader1["ComentariosCyber"].ToString());
                 sl.SetCellValue("P" + celda1, reader1["Nodo"].ToString());
                 sl.SetCellValue("Q" + celda1, reader1["Source"].ToString());
-                sl.SetCellValue("R" + celda1, reader1["time_carga"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader1["time_carga"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("R" + celda1, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("R" + celda, reader1["time_carga"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("R" + celda1, reader1["time_carga"]?.ToString());
+                }
                 sl.SetCellValue("S" + celda1, reader1["Status"].ToString());
                 sl.SetCellValue("T" + celda1, reader1["FechaHoraCierre"].ToString());
                 sl.SetCellValue("U" + celda1, reader1["cn_generado"].ToString());
                 sl.SetCellValue("V" + celda1, reader1["usuario_creo"].ToString());
                 sl.SetCellValue("W" + celda1, reader1["User_registro"].ToString());
                 sl.SetCellValue("X" + celda1, reader1["Procesando"].ToString());
-                sl.SetCellValue("Y" + celda1, reader1["FechaCompletado"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader1["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("Y" + celda1, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("Y" + celda1, reader1["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("Y" + celda, reader1["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("Z" + celda1, reader1["Id"].ToString());
                 sl.SetCellValue("AA" + celda1, reader1["IP"].ToString());
-                //sl.SetCellStyle("B" + celda1, estilo1);
-                //sl.SetCellStyle("C" + celda1, estilo1);
-                //sl.SetCellStyle("D" + celda1, estilo1);
-                //sl.SetCellStyle("E" + celda1, estilo1);
-                //sl.SetCellStyle("F" + celda1, estilo1);
-                //sl.SetCellStyle("G" + celda1, estilo1);
-                //sl.SetCellStyle("H" + celda1, estilo1);
-                //sl.SetCellStyle("I" + celda1, estilo1);
-                //sl.SetCellStyle("J" + celda1, estilo1);
-                //sl.SetCellStyle("K" + celda1, estilo1);
-                //sl.SetCellStyle("L" + celda1, estilo1);
-                //sl.SetCellStyle("M" + celda1, estilo1);
-                //sl.SetCellStyle("N" + celda1, estilo1);
-                //sl.SetCellStyle("O" + celda1, estilo1);
-                //sl.SetCellStyle("P" + celda1, estilo1);
-                //sl.SetCellStyle("Q" + celda1, estilo1);
-                //sl.SetCellStyle("R" + celda1, estilo1);
-                //sl.SetCellStyle("S" + celda1, estilo1);
-                //sl.SetCellStyle("T" + celda1, estilo1);
-                //sl.SetCellStyle("U" + celda1, estilo1);
-                //sl.SetCellStyle("V" + celda1, estilo1);
-                //sl.SetCellStyle("W" + celda1, estilo1);
-                //sl.SetCellStyle("X" + celda1, estilo1);
-                //sl.SetCellStyle("Y" + celda1, estilo1);
             }
             conn1.Close();
 
@@ -1058,7 +1085,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteAjustesNotDone")]
-        public IActionResult getReporteAjustesNotDone(string fecha1, string fecha2)
+        public IActionResult getReporteAjustesNotDone(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -1285,8 +1312,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("AC" + celda, reader["UltimaModificacionPor"].ToString());
                 sl.SetCellValue("AD" + celda, reader["Vendedor"].ToString());
                 sl.SetCellValue("AE" + celda, reader["Cve_usuario"].ToString());
-                sl.SetCellValue("AF" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("AG" + celda, reader["FechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("AG" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("AG" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("AF" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("AF" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("AG" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("AF" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("AH" + celda, reader["Status"].ToString());
                 sl.SetCellValue("AI" + celda, reader["IP"].ToString());
                 sl.SetCellValue("AJ" + celda, reader["casoNegocio"].ToString());
@@ -1305,7 +1347,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteSucursalesError")]
-        public IActionResult getReporteSucursalesError(string fecha1, string fecha2)
+        public IActionResult getReporteSucursalesError(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -1411,8 +1453,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("B" + celda, reader["cuenta"].ToString());
                 sl.SetCellValue("C" + celda, reader["casoNegocio"].ToString());
                 sl.SetCellValue("D" + celda, reader["status"].ToString());
-                sl.SetCellValue("E" + celda, reader["FechaCarga"].ToString());
-                sl.SetCellValue("F" + celda, reader["FechaCompletado"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCarga"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("E" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("E" + celda, reader["FechaCarga"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("F" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("F" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("E" + celda, reader["FechaCarga"]?.ToString());
+                    sl.SetCellValue("F" + celda, reader["FechaCompletado"]?.ToString());
+                }
             }
             reader.Close();
             conn.Close();
@@ -1424,7 +1481,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteAjustesNotDoneSinValidacion")]
-        public IActionResult getReporteAjustesNotDoneSinValidacion(string fecha1, string fecha2)
+        public IActionResult getReporteAjustesNotDoneSinValidacion(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -1566,8 +1623,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("D" + celda, reader["estado"].ToString());
                 sl.SetCellValue("E" + celda, reader["comentariosOs"].ToString());
                 sl.SetCellValue("F" + celda, reader["Cve_usuario"].ToString());
-                sl.SetCellValue("G" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("H" + celda, reader["FechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("H" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("H" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("G" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("G" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("H" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("G" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("I" + celda, reader["Status"].ToString());
                 sl.SetCellValue("J" + celda, reader["Procesando"].ToString());
 
@@ -1683,8 +1755,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("F" + celda1, reader1["solucion"].ToString());
                 sl.SetCellValue("G" + celda1, reader1["motivoCliente"].ToString());
                 sl.SetCellValue("H" + celda1, reader1["Cve_usuario"].ToString());
-                sl.SetCellValue("I" + celda1, reader1["FechaCompletado"].ToString());
-                sl.SetCellValue("J" + celda1, reader1["FechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader1["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("J" + celda1, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("J" + celda1, reader1["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader1["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("I" + celda1, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("I" + celda1, reader1["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("J" + celda1, reader1["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("J" + celda1, reader1["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("K" + celda1, reader1["Status"].ToString());
                 sl.SetCellValue("L" + celda1, reader1["Procesando"].ToString());
                 sl.SetCellValue("M" + celda1, reader1["casoNegocio"].ToString());
@@ -1711,7 +1798,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteAjustesCambioServicios")]
-        public IActionResult getReporteAjustesCambioServicios(string fecha1, string fecha2)
+        public IActionResult getReporteAjustesCambioServicios(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -1845,8 +1932,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("I" + celda, reader["Procesando"].ToString());
                 sl.SetCellValue("J" + celda, reader["IP"].ToString());
                 sl.SetCellValue("K" + celda, reader["FechaCreado"].ToString());
-                sl.SetCellValue("L" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("M" + celda, reader["FechaCarga"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("M" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("M" + celda, reader["FechaCompletado"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCarga"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("L" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("L" + celda, reader["FechaCarga"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("N" + celda, reader["FechaVencimiento"].ToString());
                 sl.SetCellStyle("B" + celda, estilo1);
                 sl.SetCellStyle("C" + celda, estilo1);
@@ -1878,7 +1980,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("getReporteCreacionOrden")]
-        public IActionResult getReporteCreacionOrden(string fecha1, string fecha2)
+        public IActionResult getReporteCreacionOrden(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -2027,8 +2129,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("I" + celda, reader["motivos"].ToString());
                 sl.SetCellValue("J" + celda, reader["solucion"].ToString());
                 sl.SetCellValue("K" + celda, reader["submotivo"].ToString());
-                sl.SetCellValue("L" + celda, reader["fechaCompletado"].ToString());
-                sl.SetCellValue("M" + celda, reader["fechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("M" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("L" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("N" + celda, reader["cnGenerado"].ToString());
                 sl.SetCellValue("O" + celda, reader["statusNegocioGenerado"].ToString());
                 sl.SetCellValue("P" + celda, reader["numeroOrden"].ToString());
@@ -2052,7 +2169,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("ReporteAjustesCasoNegocioCobranza")]
-        public IActionResult ReporteAjustesCasoNegocioCobranza(string fecha1, string fecha2)
+        public IActionResult ReporteAjustesCasoNegocioCobranza(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -2180,7 +2297,6 @@ namespace WebApplication1.Controllers
             sl.SetPageSettings(sp);
 
             int celda = 9;
-            //string sql = $"select * from AjustesBasesCasosNeogcioCobranza where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
             string sql = $"select cuenta,casoNegocio,categoria,estado,fechaApertura,Id,mediosContacto,motivoCliente,motivos,solucion,submotivo,fechaCompletado,FORMAT(FechaCaptura, 'dd/MM/yyyy hh:mm:ss tt') AS fechaCaptura,cnGenerado,statusNegocioGenerado,numeroAjuste,status,procesando,ip,estatusAjuste from AjustesBasesCasosNeogcioCobranza where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
@@ -2203,8 +2319,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("I" + celda, reader["motivos"].ToString());
                 sl.SetCellValue("J" + celda, reader["solucion"].ToString());
                 sl.SetCellValue("K" + celda, reader["submotivo"].ToString());
-                sl.SetCellValue("L" + celda, reader["fechaCompletado"].ToString());
-                sl.SetCellValue("M" + celda, reader["fechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("M" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("L" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("M" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("L" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("N" + celda, reader["cnGenerado"].ToString());
                 sl.SetCellValue("O" + celda, reader["statusNegocioGenerado"].ToString());
                 sl.SetCellValue("P" + celda, reader["numeroAjuste"].ToString());
@@ -2228,7 +2359,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("ReporteOrdenesCallTrouble")]
-        public IActionResult ReporteOrdenesCallTrouble(string fecha1, string fecha2)
+        public IActionResult ReporteOrdenesCallTrouble(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -2360,8 +2491,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("G" + celda, reader["NumeroCN"].ToString());
                 sl.SetCellValue("H" + celda, reader["Status"].ToString());
                 sl.SetCellValue("I" + celda, reader["Ip"].ToString());
-                sl.SetCellValue("J" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("K" + celda, reader["FechaCaptura"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("K" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("K" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("J" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("J" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("K" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("J" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("L" + celda, reader["Cve_usuario"].ToString());
                 sl.SetCellValue("M" + celda, reader["Id"].ToString());
             }
@@ -2379,7 +2525,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("ReporteOkCliente")]
-        public IActionResult ReporteOkCliente(string fecha1, string fecha2)
+        public IActionResult ReporteOkCliente(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -2428,7 +2574,7 @@ namespace WebApplication1.Controllers
             estilo.Font.FontName = "Arial";
             estilo.Font.FontSize = 12;
             estilo.Font.Bold = true;
-            string colorHex = "#2E8B57";
+            string colorHex = "#FF0000";
             Color customColor = ColorTranslator.FromHtml(colorHex);
             estilo.Alignment.Horizontal = HorizontalAlignmentValues.Center;
             estilo.Font.SetFontThemeColor(SLThemeColorIndexValues.Light1Color);
@@ -2474,6 +2620,7 @@ namespace WebApplication1.Controllers
             sl.SetCellValue("N9", "Hub");
             sl.SetCellValue("O9", "Ip");
             sl.SetCellValue("P9", "Usuario Captura");
+            sl.SetCellValue("Q9", "Prioridad Establecida");
 
             sl.SetCellStyle("B9", estilo);
             sl.SetCellStyle("C9", estilo);
@@ -2490,6 +2637,7 @@ namespace WebApplication1.Controllers
             sl.SetCellStyle("N9", estilo);
             sl.SetCellStyle("O9", estilo);
             sl.SetCellStyle("P9", estilo);
+            sl.SetCellStyle("Q9", estilo);
 
             SLPageSettings sp = new SLPageSettings
             {
@@ -2498,7 +2646,7 @@ namespace WebApplication1.Controllers
             sl.SetPageSettings(sp);
 
             int celda = 9;
-            string sql = $"select Id,cuenta, orden,FechaCompletado,Ip,osGenerada,hub,nombre,telefono,tipo,comentario, encuesta, status, Ip, FechaCaptura,origen,usuario_captura from okCliente2 where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            string sql = $"select Id,cuenta, orden,FechaCompletado,Ip,osGenerada,hub,nombre,telefono,tipo,comentario, encuesta, status, Ip, prioridad, FechaCaptura,origen,usuario_captura from okCliente2 where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
             conn.Open();
@@ -2520,11 +2668,27 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("I" + celda, reader["comentario"].ToString());
                 sl.SetCellValue("J" + celda, reader["origen"].ToString());
                 sl.SetCellValue("K" + celda, reader["encuesta"].ToString());
-                sl.SetCellValue("L" + celda, reader["FechaCaptura"].ToString());
-                sl.SetCellValue("M" + celda, reader["FechaCompletado"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("L" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("L" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("M" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("M" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("L" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("M" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("N" + celda, reader["hub"].ToString());
                 sl.SetCellValue("O" + celda, reader["Ip"].ToString());
                 sl.SetCellValue("P" + celda, reader["usuario_captura"].ToString());
+                sl.SetCellValue("Q" + celda, reader["prioridad"].ToString());
             }
 
             sl.SelectWorksheet("Detalle");
@@ -2538,7 +2702,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("ReporteRetencion0")]
-        public IActionResult ReporteRetencion0(string fecha1, string fecha2)
+        public IActionResult ReporteRetencion0(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -2588,7 +2752,7 @@ namespace WebApplication1.Controllers
             estilo.Font.FontName = "Arial";
             estilo.Font.FontSize = 12;
             estilo.Font.Bold = true;
-            string colorHex = "#2E8B57";
+            string colorHex = "#FF0000";
             Color customColor = ColorTranslator.FromHtml(colorHex);
             estilo.Alignment.Horizontal = HorizontalAlignmentValues.Center;
             estilo.Font.SetFontThemeColor(SLThemeColorIndexValues.Light1Color);
@@ -2668,8 +2832,23 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("C" + celda, reader["CasoNegocio"].ToString());
                 sl.SetCellValue("D" + celda, reader["Status"].ToString());
                 sl.SetCellValue("E" + celda, reader["NumeroAjuste"].ToString());
-                sl.SetCellValue("F" + celda, reader["FechaCaptura"].ToString());
-                sl.SetCellValue("G" + celda, reader["FechaCompletado"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("F" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("F" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("G" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("G" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("F" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("G" + celda, reader["FechaCompletado"]?.ToString());
+                }
                 sl.SetCellValue("H" + celda, reader["Cve_usuario"].ToString());
                 sl.SetCellValue("I" + celda, reader["Ip"].ToString());
                 sl.SetCellValue("J" + celda, reader["Proceso"].ToString());
@@ -2693,7 +2872,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("ReporteCreacionCNs")]
-        public IActionResult ReporteCreacionCNs(string fecha1, string fecha2)
+        public IActionResult ReporteCreacionCNs(string fecha1, string fecha2, string remitente)
         {
             SLDocument sl = new SLDocument();
             var pathimg = $"{this._webHostEnvironment.WebRootPath}\\img\\img.png";
@@ -2840,10 +3019,25 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("L" + celda, reader["Tipo"].ToString());
                 sl.SetCellValue("M" + celda, reader["FechaGestion"].ToString());
                 sl.SetCellValue("N" + celda, reader["FechaSubida"].ToString());
-                sl.SetCellValue("N" + celda, reader["FechaCaptura"].ToString());
-                sl.SetCellValue("N" + celda, reader["FechaCompletado"].ToString());
-                sl.SetCellValue("N" + celda, reader["Cve_usuario"].ToString());
-                sl.SetCellValue("N" + celda, reader["Ip"].ToString());
+                if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
+                {
+                    if (DateTime.TryParse(reader["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("O" + celda, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("O" + celda, reader["FechaCaptura"]?.ToString());
+
+                    if (DateTime.TryParse(reader["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("P" + celda, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("P" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                else
+                {
+                    sl.SetCellValue("O" + celda, reader["FechaCaptura"]?.ToString());
+                    sl.SetCellValue("P" + celda, reader["FechaCompletado"]?.ToString());
+                }
+                sl.SetCellValue("Q" + celda, reader["Cve_usuario"].ToString());
+                sl.SetCellValue("R" + celda, reader["Ip"].ToString());
             }
 
             sl.SelectWorksheet("Detalles");
