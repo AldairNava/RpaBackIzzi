@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1;
 
@@ -11,9 +12,11 @@ using WebApplication1;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250912233704_flag")]
+    partial class flag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4285,13 +4288,7 @@ namespace WebApplication1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Cuenta")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Cve_usuario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DNIS")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("FechaCaptura")
@@ -4300,31 +4297,37 @@ namespace WebApplication1.Migrations
                     b.Property<DateTime?>("FechaCompletado")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("FechaInstalacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Ip")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NomCampana")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NomCliente")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumOrden")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OpcionDigitada")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrdenGeneada")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ServicioContratado")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("cuenta")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("dnis")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("fechaInstalacion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nombreCampana")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nombreCliente")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("numeroOrden")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("opcionDigitada")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ordenGeneada")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("servicioContratado")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

@@ -109,7 +109,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var datos = _context.AjustesCambioServicios.FromSqlRaw("select * from AjustesCambioServicios order by FechaCarga desc;").ToList();
+                var datos = _context.AjustesCambioServicios.FromSqlRaw("SELECT * FROM AjustesCambioServicios WHERE CONVERT(date, DATEADD(hour, -6, FechaCarga)) = CONVERT(date, GETDATE()) ORDER BY FechaCarga DESC;").ToList();
                 if (datos.Count() > 0)
                 {
                     return Ok(datos);

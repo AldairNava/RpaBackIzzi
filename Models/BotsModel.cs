@@ -47,7 +47,6 @@ namespace WebApplication1.Models
         public string? estado { get; set; }
 
     }
-
     public class catalogoProcesosBotsModel
     {
         public int Id { get; set; }
@@ -84,7 +83,6 @@ namespace WebApplication1.Models
         public string? ulitmoDiaSend { get; set; }
 
     }
-
     public class Hobs
     {
         public int Id { get; set; }
@@ -106,14 +104,12 @@ namespace WebApplication1.Models
         public string? serie { get; set; }
 
     }
-
     public class seriesExlcucion
     {
         public int Id { get; set; }
         public string? serie { get; set; }
 
     }
-
     public class SeriesMasivoExport
     {
         [JsonProperty("SERIE")]
@@ -122,7 +118,6 @@ namespace WebApplication1.Models
         [JsonProperty("PUNTODEINVENTARIO")]
         public string? puntoDeInventario { get; set; }
     }
-
     public class SeriesMasivo
     {
         public int Id { get; set; }
@@ -142,14 +137,12 @@ namespace WebApplication1.Models
         [JsonProperty("FechaCompletado")]
         public DateTime? FechaCompletado { get; set; }
     }
-
     public class MailRequest
     {
         public string? To { get; set; }
         public string? Subject { get; set; }
         public string? Body { get; set; }
     }
-
     public class Depuracion_resultados_importados_RPA
     {
         public int Id { get; set; }
@@ -197,7 +190,6 @@ namespace WebApplication1.Models
         public string? Telefono6 { get; set; }
         public string? Compania { get; set; }
     }
-
     public class ordenTroubleCall
     {
         public int Id { get; set; }
@@ -215,7 +207,6 @@ namespace WebApplication1.Models
         public string? NumeroCN { get; set; }
 
     }
-
     public class okcliente
     {
         public int Id { get; set; }
@@ -249,9 +240,6 @@ namespace WebApplication1.Models
         public string editor { get; set; }
         public string passwordConfirm { get; set; }
     }
-
-
-
     public class Usuario
     {
         public int id { get; set; }
@@ -266,7 +254,6 @@ namespace WebApplication1.Models
         public DateTime updatedAt { get; set; }
 
     }
-
     public class UsuariosLog
     {
         public int id { get; set; }
@@ -286,7 +273,6 @@ namespace WebApplication1.Models
         public string contraseña { get; set; }
 
     }
-
     public class AgenteDepuracion
     {
         public int Id { get; set; }

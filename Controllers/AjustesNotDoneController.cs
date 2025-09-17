@@ -919,8 +919,6 @@ namespace WebApplication1.Controllers
 
             conn.Close();
             return objs;
-
-
         }
 
         [Route("InsertarBaseDatosCancelacionSinValidacion")]
@@ -1336,32 +1334,6 @@ namespace WebApplication1.Controllers
 
         }
 
-        //[Route("updateBasesCasoNegocioCobranza")]
-        //[HttpPost]
-        //public dynamic updateBasesCasoNegocioCobranza([FromBody] JsonArray Info)
-        //{
-        //    SqlConnection conn = new SqlConnection();
-        //    conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
-        //    try
-        //    {
-        //        conn.Open();
-        //        foreach (var data in Info)
-        //        {
-        //            string sql = "update AjustesBasesCasosNeogcioCobranza set Status= '"+data["Status"] +"' where id='" + data["id"] + "';";
-        //            SqlCommand cmd = new SqlCommand(sql, conn);
-        //            cmd.ExecuteNonQuery();
-        //        }
-        //        conn.Close();
-        //        return Ok();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        conn.Close();
-        //        return BadRequest(ex.Message);
-        //    }
-
-        //}
-
         [Route("InsertarBasesOrdenTrouble")]
         [HttpPost]
         public dynamic InsertarBasesOrdenTrouble([FromBody] JsonArray Info)
@@ -1388,33 +1360,6 @@ namespace WebApplication1.Controllers
             }
 
         }
-
-        //[Route("InsertarBasesOrdenTrouble")]
-        //[HttpPost]
-        //public dynamic InsertarBasesOrdenTrouble([FromBody] JsonArray Info)
-        //{
-        //    SqlConnection conn = new SqlConnection();
-        //    conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
-        //    try
-        //    {
-        //        conn.Open();
-        //        foreach (var data in Info)
-        //        {
-        //            string sql = "insert into OrdenTroubleCall (Cuenta,Tipo,Motivo,Comentarios,Cve_usuario,Procesando,Status,FechaCaptura,NumeroOrden,FechaCompletado,Ip,NumeroCN) " +
-        //     "values ('" + data["Cuenta"] + "','" + data["Tipo"] + "','" + data["Motivo"] + "','" + data["Comentarios"] + "','" + data["Usuario"] + "','" + data["Procesando"] + "','" + data["Status"] + "','" + data["Fecha Capturado"] + "','" + data["Numero de Orden"] + "','" + data["Fecha Completado"] + "','" + data["Bot"] + "','" + data["Numero de CN"] + "')";
-        //            SqlCommand cmd = new SqlCommand(sql, conn);
-        //            cmd.ExecuteNonQuery();
-        //        }
-        //        conn.Close();
-        //        return Ok();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        conn.Close();
-        //        return BadRequest(ex.Message);
-        //    }
-
-        //}
 
         [Route("ActualizaOrdenTroubleCall")]
         [HttpPut]
@@ -1878,6 +1823,139 @@ namespace WebApplication1.Controllers
             }
         }
 
+        
+        [HttpPost("InsertarFlagConfirmacion")]
+        public async Task<IActionResult> InsertarFlagConfirmacion([FromBody] List<flagConfirmacion> data)
+        {
+            if (data == null || !data.Any())
+                return BadRequest("No se recibió información.");
+
+            string jsonData = System.Text.Json.JsonSerializer.Serialize(data);
+
+            using var conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
+            using var cmd = new SqlCommand("InsertarFlagConfirmacion", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@json", SqlDbType.NVarChar).Value = jsonData;
+
+            await conn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
+
+            return Ok(new { message = "Datos insertados correctamente." });
+        }
+
+        [HttpGet]
+        [Route("getAjustesFlagConfirmacion")]
+        public async Task<ActionResult<IEnumerable<flagConfirmacion>>> getAjustesFlagConfirmacion()
+        {
+            try
+            {
+                var Date = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                var datos = _context.flagConfirmacion.FromSqlRaw($"select * from flagConfirmacion where CONVERT(date,FechaCaptura) between '{Date}' and '{Date}' order by FechaCaptura desc;").ToList();
+                if (datos.Count() > 0)
+                {
+                    return Ok(datos);
+
+                }
+                else
+                {
+                    var d = new List<string>()
+                    {
+                        "SIN INFO"
+                    };
+                    return Ok(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("statsBasesFlagConfirmacion")]
+        public ArrayList statsBasesFlagConfirmacion()
+        {
+            var Date = DateTime.Now.Date.ToString("yyyy-MM-dd");
+            SqlConnection conn = new SqlConnection();
+            conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
+
+            string sql = $"SELECT SUM(CASE WHEN Status = 'Pendiente' THEN 1 ELSE 0 END) AS Pendientes,SUM(CASE WHEN Status like '%Error%' THEN 1 ELSE 0 END) AS Error,SUM(CASE WHEN status='Cerrado' or status='No aplica ajuste reciente' or status='Cerrada' or status='Completado' or status='Completada' or status='Caso de Negocio YA Tipificado' or status='Aplicación correcta' THEN 1 ELSE 0 END) AS Completado,SUM(CASE WHEN Status = 'Procesando' THEN 1 ELSE 0 END) AS Procesando,count(*) AS Total FROM flagConfirmacion where CONVERT(date,FechaCaptura) between '{Date}' and '{Date}';";
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            SqlDataReader reader = cmd.ExecuteReader();
+            ArrayList objs = new ArrayList();
+            while (reader.Read())
+            {
+                objs.Add(new
+                {
+                    Pendientes = reader["Pendientes"],
+                    Error = reader["Error"],
+                    Completado = reader["Completado"],
+                    Procesando = reader["Procesando"],
+                    Total = reader["Total"],
+                });
+            }
+
+            conn.Close();
+            return objs;
+        }
+
+        [HttpGet]
+        [Route("getCuentaFlagConfirmacion")]
+        public async Task<ActionResult<IEnumerable<flagConfirmacion>>> getCuentaFlagConfirmacion()
+        {
+            try
+            {
+                var datos = _context.flagConfirmacion.FromSqlRaw("exec Sp_getCuentaFlagConfirmacion").ToList();
+                if (datos.Count() > 0)
+                {
+                    return Ok(datos);
+
+                }
+                else
+                {
+                    var d = new List<string>()
+                    {
+                        "SIN INFO"
+                    };
+                    return Ok(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        [Route("ActualizaFlagConfirmacion")]
+        [HttpPut]
+        public dynamic ActualizaFlagConfirmacion(int id, [FromBody] flagConfirmacion Cuenta)
+        {
+            try
+            {
+                if (id == Cuenta.Id)
+                {
+
+                    Cuenta.FechaCompletado = DateTime.Now;
+                    _context.Update(Cuenta);
+                    _context.SaveChanges();
+                    return Ok(Cuenta);
+
+                }
+                else
+                    return NotFound();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        
 
     }
 }

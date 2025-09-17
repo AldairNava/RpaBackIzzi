@@ -338,5 +338,24 @@
             public string? Status { get; set; }
         }
 
+    public class flagConfirmacion
+    {
+        public int Id { get; set; }
+        public string? Ip { get; set; }
+        public string? OrdenGeneada { get; set; }
+        public DateTime? FechaCaptura { get; set; }
+        public DateTime? FechaCompletado { get; set; }
+        public string? Status { get; set; }
+        public string? Cve_usuario { get; set; }
+        public string? Cuenta { get; set; }
+        public string? NomCliente { get; set; }
+        public string? ServicioContratado { get; set; }
+        public DateTime? FechaInstalacion { get; set; }
+        public string? NumOrden { get; set; }
+        public string? NomCampana { get; set; }
+        public string? OpcionDigitada { get; set; }
+        public string? DNIS { get; set; }
+    }
+
 
 }

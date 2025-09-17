@@ -849,17 +849,24 @@ namespace WebApplication1.Controllers
             try
             {
                 var datos = _context.cat_procesos.FromSqlRaw("select * from cat_procesos;").ToList();
-                if (datos.Count() > 0)
-                {
-                    return Ok(datos);
 
+                if (datos.Count > 0)
+                {
+                    // Mapea cada objeto para enmascarar la contraseña
+                    var datosConPasswordMascara = datos.Select(p => {
+                        // Clona el objeto o usa un DTO si lo prefieres
+                        p.password = p.password != null ? new string('*', p.password.Length) : null;
+                        return p;
+                    }).ToList();
+
+                    return Ok(datosConPasswordMascara);
                 }
                 else
                 {
                     var d = new List<string>()
-                    {
-                        "SIN INFO"
-                    };
+            {
+                "SIN INFO"
+            };
                     return Ok(d);
                 }
             }
@@ -867,8 +874,8 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
         }
+[HttpPost]
 
         [HttpGet]
         [Route("getOneProceso")]
