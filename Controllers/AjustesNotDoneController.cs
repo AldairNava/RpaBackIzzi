@@ -1880,7 +1880,7 @@ namespace WebApplication1.Controllers
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
 
-            string sql = $"SELECT SUM(CASE WHEN Status = 'Pendiente' THEN 1 ELSE 0 END) AS Pendientes,SUM(CASE WHEN Status like '%Error%' THEN 1 ELSE 0 END) AS Error,SUM(CASE WHEN status='Cerrado' or status='No aplica ajuste reciente' or status='Cerrada' or status='Completado' or status='Completada' or status='Caso de Negocio YA Tipificado' or status='Aplicación correcta' THEN 1 ELSE 0 END) AS Completado,SUM(CASE WHEN Status = 'Procesando' THEN 1 ELSE 0 END) AS Procesando,count(*) AS Total FROM flagConfirmacion where CONVERT(date,FechaCaptura) between '{Date}' and '{Date}';";
+            string sql = $"SELECT SUM(CASE WHEN Status = 'Pendiente' THEN 1 ELSE 0 END) AS Pendientes,SUM(CASE WHEN Status = 'No aplica: OS Previamente Modificada' THEN 1 ELSE 0 END) AS Error,SUM(CASE WHEN status='Confirmado' or status='Completado' or status='Completada' THEN 1 ELSE 0 END) AS Completado,SUM(CASE WHEN Status = 'Procesando' THEN 1 ELSE 0 END) AS Procesando,count(*) AS Total FROM flagConfirmacion where CONVERT(date,FechaCaptura) between '2025-09-19' and '2025-09-19';";
             conn.Open();
             SqlCommand cmd = new SqlCommand(sql, conn);
             SqlDataReader reader = cmd.ExecuteReader();

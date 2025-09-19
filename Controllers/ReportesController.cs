@@ -1757,20 +1757,20 @@ namespace WebApplication1.Controllers
                 sl.SetCellValue("H" + celda1, reader1["Cve_usuario"].ToString());
                 if (!string.IsNullOrEmpty(remitente) && remitente.ToUpper() == "RPA")
                 {
-                    if (DateTime.TryParse(reader1["FechaCaptura"]?.ToString(), out DateTime fechaCaptura))
-                        sl.SetCellValue("J" + celda1, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
-                    else
-                        sl.SetCellValue("J" + celda1, reader1["FechaCaptura"]?.ToString());
-
-                    if (DateTime.TryParse(reader1["FechaCompletado"]?.ToString(), out DateTime fechaCompletado))
-                        sl.SetCellValue("I" + celda1, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    if (DateTime.TryParse(reader1["FechaCompletado"]?.ToString(), out DateTime fechaCaptura))
+                        sl.SetCellValue("I" + celda1, fechaCaptura.ToString("dd-MM-yyyy HH:mm:ss"));
                     else
                         sl.SetCellValue("I" + celda1, reader1["FechaCompletado"]?.ToString());
+
+                    if (DateTime.TryParse(reader1["FechaCaptura"]?.ToString(), out DateTime fechaCompletado))
+                        sl.SetCellValue("J" + celda1, fechaCompletado.ToString("dd-MM-yyyy HH:mm:ss"));
+                    else
+                        sl.SetCellValue("J" + celda1, reader1["FechaCaptura"]?.ToString());
                 }
                 else
                 {
+                    sl.SetCellValue("I" + celda1, reader1["FechaCompletado"]?.ToString());
                     sl.SetCellValue("J" + celda1, reader1["FechaCaptura"]?.ToString());
-                    sl.SetCellValue("J" + celda1, reader1["FechaCompletado"]?.ToString());
                 }
                 sl.SetCellValue("K" + celda1, reader1["Status"].ToString());
                 sl.SetCellValue("L" + celda1, reader1["Procesando"].ToString());
@@ -3169,7 +3169,7 @@ namespace WebApplication1.Controllers
             sl.SetPageSettings(sp);
 
             int celda = 9;
-            string sql = $"select * from CreacionCNs where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
+            string sql = $"select * from flagConfirmacion where CONVERT(date,FechaCaptura) between '{fecha1}' and '{fecha2}'";
             SqlConnection conn = new SqlConnection();
             conn.ConnectionString = "Server=tcp:rpawinserver.database.windows.net,1433;Initial Catalog=WinDBRPA;Persist Security Info=False;User ID=RpaWinDB;Password=Ruka0763feTrfg;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;";
             conn.Open();
